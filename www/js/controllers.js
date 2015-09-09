@@ -1,8 +1,71 @@
 angular.module('starter.controllers', [])
 
-.controller('InvitationsCtrl', function($scope) {})
+.controller('TabCtrl', function($scope, $location, $window){
+  $scope.logout = function(){
+    $window.localStorage.removeItem('current-user');
 
-.controller('GroupsCtrl', function($scope, Chats) {
+    $window.location.reload(true);
+    $location.path('/login');
+  }
+})
+
+.controller('InvitationsCtrl', function($scope, $http, $window) {
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+
+  $http.get('http://localhost:3000/users/'+$scope.currentUser.id+'/received').success(function(response){
+    $scope.invitationsReceived = response;
+  }).error(function(response){
+    console.log(response);
+  })
+
+  $http.get('http://localhost:3000/users/'+$scope.currentUser.id+'/sent').success(function(response){
+    $scope.invitationsSent = response;
+  }).error(function(response){
+    console.log(response);
+  })
+
+  $scope.acceptInvite = function(index){
+    var data = {
+      accepted: true
+    }
+
+    $scope.invitationToAccept = $scope.invitationsReceived[index];
+
+    $http.put('http://localhost:3000/invitation/'+$scope.invitationToAccept.id, data).success(function(response){
+      var groupUserData = {
+          group_id: $scope.invitationToAccept.group_id,
+          user_id: $scope.invitationToAccept.user_id
+      }
+      $http.post('http://localhost:3000/groups/'+$scope.invitationToAccept.group_id+'/group_users', groupUserData).success(function(response){
+        console.log(response);
+        $window.location.reload(true);
+      }).error(function(response){
+        console.log(response);
+      })
+      console.log(response);
+    }).error(function(response){
+      console.log(response);
+    })
+  }
+
+  $scope.rejectInvite = function(index){
+    var data = {
+      rejected: true
+    }
+
+    $scope.invitationToReject = $scope.invitationsReceived[index];
+
+    $http.put('http://localhost:3000/invitation/'+$scope.invitationToReject.id, data).success(function(response){
+      $window.location.reload(true);
+      console.log(response);
+    }).error(function(response){
+      console.log(response);
+    })
+  }
+
+})
+
+.controller('GroupsCtrl', function($scope, $location, $http, $window) {
   // With the new view caching in Ionic, Controllers are only called
   // when they are recreated or on app start, instead of every page change.
   // To listen for when this page is active (for example, to refresh data),
@@ -11,10 +74,17 @@ angular.module('starter.controllers', [])
   //$scope.$on('$ionicView.enter', function(e) {
   //});
 
-  $scope.chats = Chats.all();
-  $scope.remove = function(chat) {
-    Chats.remove(chat);
-  };
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+
+  $http.get('http://localhost:3000/users/'+$scope.currentUser.id+'/group_users').success(function(response){
+    $scope.groups = response;
+  }).error(function(response){
+    console.log(response);
+  });
+
+  $scope.goAdd = function(){
+    $location.path('/tab/addgroup');
+  }
 })
 
 .controller('LoginCtrl', function($scope, $ionicModal, $timeout, $auth, $ionicPopup, $window, $location) {
@@ -24,6 +94,10 @@ angular.module('starter.controllers', [])
   };
 
   validateUser();
+
+  if ($scope.currentUser!=null){
+    $location.path('/tab/groups');
+  };
   $scope.loginData = {};
   $scope.signupData = {};
 
@@ -64,16 +138,16 @@ angular.module('starter.controllers', [])
       });
     });
   };
-
-  $scope.logout = function(){
-    $window.localStorage.removeItem('current-user');
-    validateUser();
-
-    $window.location.reload(true);
-  }
 })
 
-.controller('GroupCtrl', function($scope) {
+.controller('GroupCtrl', function($scope, $stateParams, $http, $location) {
+
+  $http.get('http://localhost:3000/groups/'+$stateParams.id).success(function(response){
+    $scope.group = response;
+  }).error(function(response){
+    console.log(response);
+  });
+
   $scope.myLocation = {
     lng : '',
     lat: ''
@@ -100,19 +174,50 @@ angular.module('starter.controllers', [])
         coords: {
           latitude: $scope.myLocation.lat,
           longitude: $scope.myLocation.lng
-        }
+        },
       }; 
        
       $scope.marker.options = {
         draggable: false,
-        labelContent: "lat: " + $scope.marker.coords.latitude + '<br/> ' + 'lon: ' + $scope.marker.coords.longitude,
-        labelAnchor: "80 120",
+        labelContent: "You",
         labelClass: "marker-labels"
       };  
     });
   }
  
-  navigator.geolocation.getCurrentPosition($scope.drawMap); 
+  navigator.geolocation.getCurrentPosition($scope.drawMap);
+
+  $scope.goInvite = function(){
+    $location.path('/tab/group/'+$stateParams.id+'/new_invitation');
+  }  
+})
+
+.controller('NewInvitationCtrl', function($scope, $stateParams, $http, $location, $window, $ionicPopup) {
+  $scope.invitation = {}
+
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+
+  $http.get('http://localhost:3000/groups/'+$stateParams.id).success(function(response){
+    $scope.group = response;
+  }).error(function(response){
+    console.log(response);
+  });
+
+  $scope.sendInvitation = function(){
+    var data = {
+      text: $scope.invitation.text
+    }
+    $http.post('http://localhost:3000/users/'+$scope.currentUser.id+'/groups/'+$stateParams.id+'/invitation/'+$scope.invitation.phoneNumber, data).success(function(response){
+      console.log(response);
+      $location.path('/tab/group/'+$stateParams.id);
+    }).error(function(response){
+      $ionicPopup.alert({
+        title: 'Oops! Try again!'      
+      });
+    });
+  }
+
+
 })
 
 
@@ -121,4 +226,40 @@ angular.module('starter.controllers', [])
     allowInvitations: true,
     goSilent: false
   };
+})
+
+.controller('AddGroupCtrl', function($scope, $cordovaFileTransfer, $location, $http, $window){
+  $scope.groupData = {}
+  // $scope.upload = function() {
+  //   var options = {
+  //     fileKey: "avatar",
+  //     fileName: "image.png",
+  //     chunkedMode: false,
+  //     mimeType: "image/png"
+  //   };
+  // };
+
+  $scope.addGroup = function(){
+    $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+    console.log($scope.currentUser);
+    var data = {
+      name: $scope.groupData.name
+    } 
+
+    $http.post('http://localhost:3000/groups', data).success(function(response){
+      console.log(response);
+      var userData = {
+        user_id: $scope.currentUser.id
+      }
+      $http.post('http://localhost:3000/groups/'+response.id+'/group_users', userData).success(function(resp){
+        console.log(resp);
+        $window.location.reload(true);
+        $location.path('/tab/groups');
+      }).error(function(resp){
+        console.log(resp);
+      })
+    }).error(function(response){
+      console.log(response);
+    })
+  }
 });

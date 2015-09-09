@@ -1,26 +1,30 @@
 <ion-view view-title="Invitations">
   <ion-content class="padding">
-    <div class="list card">
-      <div class="item item-divider">Recent Updates</div>
+    <h1>Received Invitations</h1>
+    <div class="list card" ng-repeat="invitation in invitationsReceived track by $index">
+      <div class="item item-divider">Sent By {{ invitation.sent_by }} To Join {{ invitation.group_to_join }}</div>
       <div class="item item-body">
         <div>
-          There is a fire in <b>sector 3</b>
+          {{ invitation.text }}
+          <div class="invite-buttons">
+            <button class="button button-small button-positive invite-button" ng-click="acceptInvite($index)">
+              Accept
+             </button>
+
+            <button class="button button-small button-assertive invite-button" ng-click="rejectInvite($index)">
+              Reject
+            </button>
+          </div>
         </div>
       </div>
     </div>
-    <div class="list card">
-      <div class="item item-divider">Health</div>
+    
+    <h1>Sent Invitations</h1>
+    <div class="list card" ng-repeat="invitation in invitationsSent">
+      <div class="item item-divider">Sent To {{ invitation.sent_to }} To Join {{ invitation.group_to_join }}</div>
       <div class="item item-body">
         <div>
-          You ate an apple today!
-        </div>
-      </div>
-    </div>
-    <div class="list card">
-      <div class="item item-divider">Upcoming</div>
-      <div class="item item-body">
-        <div>
-          You have <b>29</b> meetings on your calendar tomorrow.
+          {{ invitation.text }}
         </div>
       </div>
     </div>

@@ -1,9 +1,7 @@
 <ion-view view-title="Login" name="login-view">
   <ion-content>
-    <div class="list">
-      <label class="item item-input item-floating-label">
-        <h1>Login</h1>
-      </label>
+    <h1>Login</h1>
+    <div class="list" id="loginList">
       <label class="item item-input item-floating-label">
         <span class="input-label">Email</span>
         <input type="email" placeholder="Email" ng-model="loginData.email">
@@ -18,10 +16,8 @@
       <button class="button button-block button-calm" ng-click="login()">Login</button>
     </div>
 
-    <div class="list">
-      <label class="item item-input item-floating-label">
-        <h1>Sign-Up</h1>
-      </label>
+    <h1>Sign-Up</h1>
+    <div class="list" id="signupList">
       <label class="item item-input item-floating-label">
         <span class="input-label">Name</span>
         <input type="text" placeholder="Name" ng-model="signupData.name">
@@ -43,9 +39,5 @@
     <div class="padding">
       <button class="button button-block button-calm" ng-click="doSignup()">Sign Up</button>
     </div>
-
-    <button ng-click="logout()" class="button button-assertive">
-      Log-out
-    </button>
   </ion-content>
 </ion-view>

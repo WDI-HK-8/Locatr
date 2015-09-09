@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 var fb = new Firebase("https://popping-inferno-7066.firebaseio.com/");
 
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'nemLogging', 'ng-cordova' ,'uiGmapgoogle-maps','ngResource', 'ng-token-auth'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'nemLogging', 'ng-cordova' ,'uiGmapgoogle-maps','ngResource', 'ng-token-auth', 'ngCordova'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -37,7 +37,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     .state('tab', {
     url: '/tab',
     abstract: true,
-    templateUrl: 'templates/tabs.html'
+    templateUrl: 'templates/tabs.html',
+    controller: 'TabCtrl'
   })
 
   // Each tab has its own nav history stack:
@@ -62,6 +63,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
       }
     })
 
+  .state('tab.addgroup', {
+      url: '/addgroup',
+      views: {
+        'tab-groups': {
+          templateUrl: 'templates/tab-addgroup.html',
+          controller: 'AddGroupCtrl'
+        }
+      }
+    })
+
   .state('tab.settings', {
     url: '/settings',
     views: {
@@ -72,11 +83,25 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     }
   })
 
-  .state('group', {
-    url: '/group',
-    templateUrl: 'templates/group.html',
-    controller: 'GroupCtrl'
-  })
+  .state('tab.group', {
+    url: '/group/:id',
+    views: {
+        'tab-groups': {
+          templateUrl: 'templates/group.html',
+          controller: 'GroupCtrl'
+        }
+      }
+    })
+
+  .state('tab.new_invitation', {
+    url: '/group/:id/new_invitation',
+    views: {
+        'tab-groups': {
+          templateUrl: 'templates/new_invitation.html',
+          controller: 'NewInvitationCtrl'
+        }
+      }
+    })
 
   .state('login', {
     url: '/login',
