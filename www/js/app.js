@@ -114,7 +114,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
   $authProvider.configure({
     // apiUrl: 'https://movie-finder-api.herokuapp.com'
-    apiUrl: 'http://localhost:3000' // backend url
+    apiUrl: 'https://locatrbackend.herokuapp.com' // backend url
     // apiUrl: 'http://myapp.heroku.com' // heroku backend
   })
 

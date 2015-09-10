@@ -1,24 +1,95 @@
 angular.module('starter.controllers', [])
 
-.controller('TabCtrl', function($scope, $location, $window){
+.controller('TabCtrl', function($scope, $location, $window, $cordovaBackgroundGeolocation, $cordovaGeolocation, $ionicPlatform, $timeout, $rootScope){
   $scope.logout = function(){
     $window.localStorage.removeItem('current-user');
 
     $window.location.reload(true);
     $location.path('/login');
   }
+
+  $scope.loaded = false;
+
+  $rootScope.deviceReady = false; 
+
+  document.addEventListener('deviceready', function () {
+    if(window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
+      window.cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+    }
+
+    var bgGeo = $cordovaBackgroundGeolocation;
+    console.log(bgGeo);
+    var deviceId = $cordovaDevice.getUUID();
+    console.log(deviceID);
+    var addVisitUrl = 'your-url-goes-here';
+
+    $rootScope.deviceId = deviceId;
+    $rootScope.deviceReady = true;
+
+    var posOptions = { timeout: 5000, enableHighAccuracy: true, maximumAge: 5000 };
+    $cordovaGeolocation.getCurrentPosition(posOptions)
+      .then(function (location) {
+      $rootScope.currentLat = location.coords.latitude;
+      $rootScope.currentLong = location.coords.longitude;
+
+      var yourAjaxCallback = function(response) {
+        bgGeo.finish();
+      };
+
+      var callbackFn = function(location) {
+        var data = {
+          deviceId: deviceId,
+          "location": {
+              "latitude": location.latitude,
+              "longitude": location.longitude
+          }
+        };
+        $http.post(addVisitUrl, data);
+        // Other code goes here
+
+        yourAjaxCallback.call(this);
+      };
+
+      var failureFn = function(error) {
+        alert('Background Geolocation Error: ' + error);
+        // Other code goes here
+      };
+
+      bgGeo.configure({
+        url: addVisitUrl,
+        params: {
+          deviceId: deviceId,
+          "location": {
+            "latitude": $rootScope.currentLat,
+            "longitude": $rootScope.currentLong
+          }
+        },
+        desiredAccuracy: 10,
+        stationaryRadius: 10,
+        distanceFilter: 10,
+        activityType: 'OtherNavigation',
+        debug: true, 
+        stopOnTerminate: false
+      })
+      .then(callbackFn, failureFn, callbackFn);
+
+      bgGeo.start();
+      console.log(bgGeo);
+    });
+  $rootScope.$digest();
+  });
 })
 
 .controller('InvitationsCtrl', function($scope, $http, $window) {
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
 
-  $http.get('http://localhost:3000/users/'+$scope.currentUser.id+'/received').success(function(response){
+  $http.get('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/received').success(function(response){
     $scope.invitationsReceived = response;
   }).error(function(response){
     console.log(response);
   })
 
-  $http.get('http://localhost:3000/users/'+$scope.currentUser.id+'/sent').success(function(response){
+  $http.get('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/sent').success(function(response){
     $scope.invitationsSent = response;
   }).error(function(response){
     console.log(response);
@@ -31,12 +102,12 @@ angular.module('starter.controllers', [])
 
     $scope.invitationToAccept = $scope.invitationsReceived[index];
 
-    $http.put('http://localhost:3000/invitation/'+$scope.invitationToAccept.id, data).success(function(response){
+    $http.put('https://locatrbackend.herokuapp.com/invitation/'+$scope.invitationToAccept.id, data).success(function(response){
       var groupUserData = {
           group_id: $scope.invitationToAccept.group_id,
           user_id: $scope.invitationToAccept.user_id
       }
-      $http.post('http://localhost:3000/groups/'+$scope.invitationToAccept.group_id+'/group_users', groupUserData).success(function(response){
+      $http.post('https://locatrbackend.herokuapp.com/groups/'+$scope.invitationToAccept.group_id+'/group_users', groupUserData).success(function(response){
         console.log(response);
         $window.location.reload(true);
       }).error(function(response){
@@ -55,7 +126,7 @@ angular.module('starter.controllers', [])
 
     $scope.invitationToReject = $scope.invitationsReceived[index];
 
-    $http.put('http://localhost:3000/invitation/'+$scope.invitationToReject.id, data).success(function(response){
+    $http.put('https://locatrbackend.herokuapp.com/invitation/'+$scope.invitationToReject.id, data).success(function(response){
       $window.location.reload(true);
       console.log(response);
     }).error(function(response){
@@ -76,7 +147,7 @@ angular.module('starter.controllers', [])
 
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
 
-  $http.get('http://localhost:3000/users/'+$scope.currentUser.id+'/group_users').success(function(response){
+  $http.get('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/group_users').success(function(response){
     $scope.groups = response;
   }).error(function(response){
     console.log(response);
@@ -140,55 +211,164 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('GroupCtrl', function($scope, $stateParams, $http, $location) {
+.controller('GroupCtrl', function($scope, $stateParams, $http, $location, nemSimpleLogger, uiGmapGoogleMapApi, $window, $cordovaBackgroundGeolocation) {
 
-  $http.get('http://localhost:3000/groups/'+$stateParams.id).success(function(response){
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+
+  $http.get('https://locatrbackend.herokuapp.com/groups/'+$stateParams.id).success(function(response){
     $scope.group = response;
   }).error(function(response){
     console.log(response);
   });
 
-  $scope.myLocation = {
-    lng : '',
-    lat: ''
-  }
+  // $scope.myLocation = {
+  //   lng : '',
+  //   lat: ''
+  // }
    
-  $scope.drawMap = function(position) {
+  // $scope.drawMap = function(position) {
  
-    //$scope.$apply is needed to trigger the digest cycle when the geolocation arrives and to update all the watchers
-    $scope.$apply(function() {
-      $scope.myLocation.lng = position.coords.longitude;
-      $scope.myLocation.lat = position.coords.latitude;
+  //   //$scope.$apply is needed to trigger the digest cycle when the geolocation arrives and to update all the watchers
+  //   $scope.$apply(function() {
+  //     $scope.myLocation.lng = position.coords.longitude;
+  //     $scope.myLocation.lat = position.coords.latitude;
  
-      $scope.map = {
-        center: {
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng
-        },
-        zoom: 14,
-        pan: 1
-      };
+  //     $scope.map = {
+  //       center: {
+  //         latitude: $scope.myLocation.lat,
+  //         longitude: $scope.myLocation.lng
+  //       },
+  //       zoom: 14,
+  //       pan: 1
+  //     };
  
-      $scope.marker = {
-        id: 0,
-        coords: {
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng
-        },
-      }; 
+  //     $scope.marker = {
+  //       id: 0,
+  //       coords: {
+  //         latitude: $scope.myLocation.lat,
+  //         longitude: $scope.myLocation.lng
+  //       },
+  //     }; 
        
-      $scope.marker.options = {
-        draggable: false,
-        labelContent: "You",
-        labelClass: "marker-labels"
-      };  
-    });
-  }
+  //     $scope.marker.options = {
+  //       draggable: false,
+  //       labelContent: "You",
+  //       labelClass: "marker-labels"
+  //     };  
+  //   });
+  // }
  
-  navigator.geolocation.getCurrentPosition($scope.drawMap);
+  // navigator.geolocation.getCurrentPosition($scope.drawMap);
+
+   nemSimpleLogger.doLog = true; //default is true
+   nemSimpleLogger.currentLevel = nemSimpleLogger.LEVELS.debug
+
+   $scope.myLocation = {
+     lng : '',
+     lat: ''
+   }
+
+   $scope.drawSelfMap = function(position) { 
+     //$scope.$apply is needed to trigger the digest cycle when the geolocation arrives and to update all the watchers
+     $scope.$apply(function() {
+       $scope.myLocation.lng = position.coords.longitude;
+       $scope.myLocation.lat = position.coords.latitude;
+
+       $scope.map = {
+         center: {
+           latitude: $scope.myLocation.lat,
+           longitude: $scope.myLocation.lng
+         },
+         zoom: 14,
+         pan: 2
+       };
+
+       $scope.marker = {
+         id: "you",
+         coords: {
+           latitude: $scope.myLocation.lat,
+           longitude: $scope.myLocation.lng
+         },
+         options: {
+             animation: google.maps.Animation.BOUNCE,
+             icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
+         }
+       };
+
+       $scope.pickUpMarkers =[
+         {
+           id: "a",
+           title: "abc",
+           latitude: $scope.myLocation.lat+0.002,
+           longitude: $scope.myLocation.lng+0.002,
+           location: "fasfdasf",
+           car_make: "safdsfda",
+           name: "asdfsd",
+           icon: 'http://labs.google.com/ridefinder/images/mm_20_blue.png',
+           show: false,
+           clickPin: function(){  
+           }
+         },
+         {
+           id: "b",
+           title: "bde", 
+           latitude: $scope.myLocation.lat+0.001,
+           longitude: $scope.myLocation.lng+0.001,
+           location: "fasfdasf",
+           car_make: "safdsfda",
+           name: "asdfsd",
+           icon: 'http://labs.google.com/ridefinder/images/mm_20_blue.png',
+           show: false,
+           clickPin: function(){
+           }
+         }
+       ]
+
+       $scope.dropOffMarkers =[
+         {
+           id: "a",
+           title: "abc",
+           latitude: $scope.myLocation.lat+0.0002,
+           longitude: $scope.myLocation.lng+0.0002,
+           location: "fasfdasf",
+           car_make: "safdsfda",
+           name: "asdfsd",
+           icon: 'http://labs.google.com/ridefinder/images/mm_20_red.png',
+           show: false,
+           clickPin: function(){  
+           }
+         },
+         {
+           id: "b",
+           title: "bde", 
+           latitude: $scope.myLocation.lat+0.0001,
+           longitude: $scope.myLocation.lng+0.0001,
+           location: "fasfdasf",
+           car_make: "safdsfda",
+           name: "asdfsd",
+           icon: 'http://labs.google.com/ridefinder/images/mm_20_red.png',
+           show: false,
+           clickPin: function(){
+           }
+         }
+       ]
+     });
+   }
+
+
+ navigator.geolocation.getCurrentPosition($scope.drawSelfMap); 
 
   $scope.goInvite = function(){
     $location.path('/tab/group/'+$stateParams.id+'/new_invitation');
+  }
+
+  $scope.leaveGroup = function(){
+    $http.delete('https://locatrbackend.herokuapp.com/groups/'+$stateParams.id+'/to_delete/'+$scope.currentUser.id).success(function(response){
+      console.log(response);
+      $location.path('/tab/groups');
+    }).error(function(response){
+      console.log(response);
+    })
   }  
 })
 
@@ -197,7 +377,7 @@ angular.module('starter.controllers', [])
 
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
 
-  $http.get('http://localhost:3000/groups/'+$stateParams.id).success(function(response){
+  $http.get('https://locatrbackend.herokuapp.com/groups/'+$stateParams.id).success(function(response){
     $scope.group = response;
   }).error(function(response){
     console.log(response);
@@ -207,7 +387,7 @@ angular.module('starter.controllers', [])
     var data = {
       text: $scope.invitation.text
     }
-    $http.post('http://localhost:3000/users/'+$scope.currentUser.id+'/groups/'+$stateParams.id+'/invitation/'+$scope.invitation.phoneNumber, data).success(function(response){
+    $http.post('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/groups/'+$stateParams.id+'/invitation/'+$scope.invitation.phoneNumber, data).success(function(response){
       console.log(response);
       $location.path('/tab/group/'+$stateParams.id);
     }).error(function(response){
@@ -221,10 +401,16 @@ angular.module('starter.controllers', [])
 })
 
 
-.controller('SettingsCtrl', function($scope) {
+.controller('SettingsCtrl', function($scope, $window) {
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+
+  console.log($scope.currentUser)
+
+
+
   $scope.settings = {
-    allowInvitations: true,
-    goSilent: false
+    allowInvitations: $scope.currentUser.accept_invites,
+    goSilent: $scope.currentUser.silent
   };
 })
 
@@ -246,12 +432,12 @@ angular.module('starter.controllers', [])
       name: $scope.groupData.name
     } 
 
-    $http.post('http://localhost:3000/groups', data).success(function(response){
+    $http.post('https://locatrbackend.herokuapp.com/groups', data).success(function(response){
       console.log(response);
       var userData = {
         user_id: $scope.currentUser.id
       }
-      $http.post('http://localhost:3000/groups/'+response.id+'/group_users', userData).success(function(resp){
+      $http.post('https://locatrbackend.herokuapp.com/groups/'+response.id+'/group_users', userData).success(function(resp){
         console.log(resp);
         $window.location.reload(true);
         $location.path('/tab/groups');

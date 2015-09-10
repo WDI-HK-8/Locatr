@@ -2,8 +2,24 @@
   <ion-content data-tap-disabled="true">
     <ui-gmap-google-map center='map.center' zoom='map.zoom' events="map.markersEvents" width="100px" height="100px">
       <ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id" closeClick="hideMarkerPopup()" onClicked="showMarkerPopup()">
-      </ui-gmap-marker>        
+      </ui-gmap-marker>
+      <ui-gmap-markers
+	     	models  = "pickUpMarkers"
+	     	coords  = "'self'"
+	     	icon    = "'icon'"
+	     	click  =  "clickPin">
+	     	<ui-gmap-windows show="show">
+	       	<div ng-non-bindable>
+	         	<h2>{{title}}</h2>
+	         	<p>{{name}}</p>
+	         	<p>{{location}}</p>
+	         	<p>{{car_make}}</p>
+	       	</div>
+	     	</ui-gmap-windows>
+	   	</ui-gmap-markers>        
     </ui-gmap-google-map>
+
+    
 
 		<div id="group-buttons">
 	    <button class="button button-positive group-button" ng-click="goInvite()">
