@@ -1,50 +1,81 @@
+var bgGeo;
+
 angular.module('starter.services', [])
 
-.factory('Chats', function() {
-  // Might use a resource here that returns a JSON array
+.factory('locationService', function($http, $location, $window){
+    function startBackgroundLocation() {
+        var gpsOptions = {
+            enableHighAccuracy : true,
+            timeout: 10000,
+            maximumAge: 5000
+        };
+        navigator.geolocation.getCurrentPosition(function(location) {
+            console.log('Location from Phonegap');
+        },
+        function (error){
+            alert('error with GPS: error.code: ' + error.code + ' Message: ' + error.message);
+        },gpsOptions);
 
-  // Some fake testing data
-  var chats = [{
-    id: 0,
-    name: 'Ben Sparrow',
-    lastText: 'You on your way?',
-    face: 'https://pbs.twimg.com/profile_images/514549811765211136/9SgAuHeY.png'
-  }, {
-    id: 1,
-    name: 'Max Lynx',
-    lastText: 'Hey, it\'s me',
-    face: 'https://avatars3.githubusercontent.com/u/11214?v=3&s=460'
-  }, {
-    id: 2,
-    name: 'Adam Bradleyson',
-    lastText: 'I should buy a boat',
-    face: 'https://pbs.twimg.com/profile_images/479090794058379264/84TKj_qa.jpeg'
-  }, {
-    id: 3,
-    name: 'Perry Governor',
-    lastText: 'Look at my mukluks!',
-    face: 'https://pbs.twimg.com/profile_images/598205061232103424/3j5HUXMY.png'
-  }, {
-    id: 4,
-    name: 'Mike Harrington',
-    lastText: 'This is wicked good ice cream.',
-    face: 'https://pbs.twimg.com/profile_images/578237281384841216/R3ae1n61.png'
-  }];
+        console.log(window.plugins)
+        bgGeo = $window.plugins.backgroundGeoLocation;
 
-  return {
-    all: function() {
-      return chats;
-    },
-    remove: function(chat) {
-      chats.splice(chats.indexOf(chat), 1);
-    },
-    get: function(chatId) {
-      for (var i = 0; i < chats.length; i++) {
-        if (chats[i].id === parseInt(chatId)) {
-          return chats[i];
+        /**
+        * This would be your own callback for Ajax-requests after POSTing background geolocation to your server.
+        */
+        var yourAjaxCallback = function(response) {
+            ////
+            // IMPORTANT:  You must execute the #finish method here to inform the native plugin that you're finished,
+            //  and the background-task may be completed.  You must do this regardless if your HTTP request is successful or not.
+            // IF YOU DON'T, ios will CRASH YOUR APP for spending too much time in the background.
+            //
+            //
+            bgGeo.finish();
+        };
+
+        /**
+        * This callback will be executed every time a geolocation is recorded in the background.
+        */
+        var callbackFn = function(location) {
+            alert('[js] BackgroundGeoLocation callback:  ' + location.latitudue + ',' + location.longitude);
+            // Do your HTTP request here to POST location to your server.
+            //
+            //
+
+            // This is never called in Android
+            yourAjaxCallback.call(this);
+        };
+
+        var failureFn = function(error) {
+            alert('BackgroundGeoLocation error');
         }
-      }
-      return null;
+
+        // BackgroundGeoLocation is highly configurable.
+        bgGeo.configure(callbackFn, failureFn, {
+            url: apiUrl +'/position/', // <-- only required for Android; ios allows javascript callbacks for your http
+            params: {                                               // HTTP POST params sent to your server when persisting locations.
+               auth_token: localStorage.getItem('gcmToken')
+            },
+            desiredAccuracy: 10,
+            stationaryRadius: 20,
+            distanceFilter: 30,
+            debug: true // <-- enable this hear sounds for background-geolocation life-cycle.
+        });
+
+        // Turn ON the background-geolocation system.  The user will be tracked whenever they suspend the app.
+        // wenn der Service bereits läuft, nicht mehr starten
+        bgGeo.start();
     }
-  };
-});
+
+    function stopBackgroundLocation(){
+        bgGeo.stop();
+    }
+
+    return {
+        start: function(){
+            startBackgroundLocation();
+        },
+        stop : function () {
+            stopBackgroundLocation();
+        }
+    }
+})

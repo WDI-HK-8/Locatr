@@ -1,0 +1,43 @@
+<ion-view view-title="Login" name="login-view">
+  <ion-content>
+    <h1>Login</h1>
+    <div class="list" id="loginList">
+      <label class="item item-input item-floating-label">
+        <span class="input-label">Email</span>
+        <input type="email" placeholder="Email" ng-model="loginData.email">
+      </label>
+      <label class="item item-input item-floating-label">
+        <span class="input-label">Password</span>
+        <input type="password" placeholder="Password" ng-model="loginData.password">
+      </label>
+    </div>
+
+    <div class="padding">
+      <button class="button button-block button-calm" ng-click="login()">Login</button>
+    </div>
+
+    <h1>Sign-Up</h1>
+    <div class="list" id="signupList">
+      <label class="item item-input item-floating-label">
+        <span class="input-label">Name</span>
+        <input type="text" placeholder="Name" ng-model="signupData.name">
+      </label>
+      <label class="item item-input item-floating-label">
+        <span class="input-label">Phone Number</span>
+        <input type="text" placeholder="Phone Number" ng-model="signupData.phone_number">
+      </label>
+      <label class="item item-input item-floating-label">
+        <span class="input-label">Email</span>
+        <input type="email" placeholder="Email" ng-model="signupData.email">
+      </label>
+      <label class="item item-input item-floating-label">
+        <span class="input-label">Password</span>
+        <input type="password" placeholder="Password" ng-model="signupData.password">
+      </label>
+    </div>
+
+    <div class="padding">
+      <button class="button button-block button-calm" ng-click="doSignup()">Sign Up</button>
+    </div>
+  </ion-content>
+</ion-view>

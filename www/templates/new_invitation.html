@@ -1,0 +1,18 @@
+<ion-view view-title="Invite User to {{ group.name }}">      
+  <ion-content>
+    <div class="list" id="sendInvitation">
+      <label class="item item-input">
+        <span class="input-label">Phone Number</span>
+        <input type="text" placeholder="Phone Number of User, no dashes or spaces" ng-model="invitation.phoneNumber">
+      </label>
+      <label class="item item-input">
+        <span class="input-label">Text</span>
+        <input type="text" placeholder="Text" ng-model="invitation.text">
+      </label>
+    </div>
+
+    <div class="padding">
+      <button class="button button-block button-calm" ng-click="sendInvitation()">Send Invitation</button>
+    </div>
+  </ion-content>
+</ion-view>

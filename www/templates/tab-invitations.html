@@ -1,0 +1,32 @@
+<ion-view view-title="Invitations">
+  <ion-content class="padding">
+    <h1>Received Invitations</h1>
+    <div class="list card" ng-repeat="invitation in invitationsReceived track by $index">
+      <div class="item item-divider">Sent By {{ invitation.sent_by }} To Join {{ invitation.group_to_join }}</div>
+      <div class="item item-body">
+        <div>
+          {{ invitation.text }}
+          <div class="invite-buttons">
+            <button class="button button-small button-positive invite-button" ng-click="acceptInvite($index)">
+              Accept
+             </button>
+
+            <button class="button button-small button-assertive invite-button" ng-click="rejectInvite($index)">
+              Reject
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <h1>Sent Invitations</h1>
+    <div class="list card" ng-repeat="invitation in invitationsSent">
+      <div class="item item-divider">Sent To {{ invitation.sent_to }} To Join {{ invitation.group_to_join }}</div>
+      <div class="item item-body">
+        <div>
+          {{ invitation.text }}
+        </div>
+      </div>
+    </div>
+  </ion-content>
+</ion-view>
