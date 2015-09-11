@@ -9,12 +9,12 @@ angular.module('starter.controllers', [])
     $location.path('/login');
   }
 
-  // document.addEventListener('deviceready', function () {
-  //   if(window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
-  //     window.cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
-  //   }
+  document.addEventListener('deviceready', function () {
+    if(window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
+      window.cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+    }
 
-  //   cordova.plugins.backgroundMode.enable();
+    cordova.plugins.backgroundMode.enable();
     var posOptions = { timeout: 5000, enableHighAccuracy: true, maximumAge: 5000 };
     $cordovaGeolocation.getCurrentPosition(posOptions)
       .then(function (location) {
@@ -59,7 +59,7 @@ angular.module('starter.controllers', [])
       }, function(err) {
         console.log(err);
       });
-  // });
+  });
 })
 
 .controller('InvitationsCtrl', function($scope, $http, $window) {
