@@ -39,6 +39,7 @@ angular.module('starter.controllers', [])
 
     var watchOptions = {
       frequency : 1000,
+      timeout: 3000,
       enableHighAccuracy: false // may cause errors if true
     };
 
