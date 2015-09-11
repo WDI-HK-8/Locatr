@@ -1,3 +1,5 @@
+var apiUrl = 'https://locatrbackend.herokuapp.com'
+
 angular.module('starter.controllers', [])
 
 .controller('TabCtrl', function($scope, $location, $window, $interval, $cordovaGeolocation, $http, $timeout, $rootScope){
@@ -28,7 +30,7 @@ angular.module('starter.controllers', [])
         }
       };
 
-      $http.put('https://locatrbackend.herokuapp.com/coordinates/'+$scope.currentUser.id, data).success(function(response){
+      $http.put(apiUrl+'/coordinates/'+$scope.currentUser.id, data).success(function(response){
         console.log(response);
       }).error(function(response){
         console.log(response);
@@ -51,7 +53,7 @@ angular.module('starter.controllers', [])
             'longitude': position.coords.longitude
           }
         };
-        $http.put('https://locatrbackend.herokuapp.com/coordinates/'+$scope.currentUser.id, data).success(function(response){
+        $http.put(apiUrl+'/coordinates/'+$scope.currentUser.id, data).success(function(response){
           console.log(response);
         }).error(function(response){
           console.log(response);
@@ -63,15 +65,13 @@ angular.module('starter.controllers', [])
 })
 
 .controller('InvitationsCtrl', function($scope, $http, $window) {
-  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-
-  $http.get('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/received').success(function(response){
+  $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
     $scope.invitationsReceived = response;
   }).error(function(response){
     console.log(response);
   })
 
-  $http.get('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/sent').success(function(response){
+  $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/sent').success(function(response){
     $scope.invitationsSent = response;
   }).error(function(response){
     console.log(response);
@@ -84,12 +84,12 @@ angular.module('starter.controllers', [])
 
     $scope.invitationToAccept = $scope.invitationsReceived[index];
 
-    $http.put('https://locatrbackend.herokuapp.com/invitation/'+$scope.invitationToAccept.id, data).success(function(response){
+    $http.put(apiUrl+'/invitation/'+$scope.invitationToAccept.id, data).success(function(response){
       var groupUserData = {
           group_id: $scope.invitationToAccept.group_id,
           user_id: $scope.invitationToAccept.user_id
       }
-      $http.post('https://locatrbackend.herokuapp.com/groups/'+$scope.invitationToAccept.group_id+'/group_users', groupUserData).success(function(response){
+      $http.post(apiUrl+'/groups/'+$scope.invitationToAccept.group_id+'/group_users', groupUserData).success(function(response){
         console.log(response);
         $window.location.reload(true);
       }).error(function(response){
@@ -108,7 +108,7 @@ angular.module('starter.controllers', [])
 
     $scope.invitationToReject = $scope.invitationsReceived[index];
 
-    $http.put('https://locatrbackend.herokuapp.com/invitation/'+$scope.invitationToReject.id, data).success(function(response){
+    $http.put(apiUrl+'/invitation/'+$scope.invitationToReject.id, data).success(function(response){
       $window.location.reload(true);
       console.log(response);
     }).error(function(response){
@@ -119,15 +119,6 @@ angular.module('starter.controllers', [])
 })
 
 .controller('GroupsCtrl', function($scope, $location, $http, $window) {
-  // With the new view caching in Ionic, Controllers are only called
-  // when they are recreated or on app start, instead of every page change.
-  // To listen for when this page is active (for example, to refresh data),
-  // listen for the $ionicView.enter event:
-  //
-  //$scope.$on('$ionicView.enter', function(e) {
-  //});
-
-  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
 
   $http.get('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/group_users').success(function(response){
     $scope.groups = response;
@@ -141,12 +132,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('LoginCtrl', function($scope, $ionicModal, $timeout, $auth, $ionicPopup, $window, $location) {
-  var validateUser = function(){
-    $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-    console.log($scope.currentUser);
-  };
-
-  validateUser();
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
 
   if ($scope.currentUser!=null){
     $location.path('/tab/groups');
@@ -160,7 +146,7 @@ angular.module('starter.controllers', [])
 
       $window.localStorage.setItem('current-user',JSON.stringify(response));
 
-      validateUser();
+      $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
 
       $window.location.reload(true);
       $location.path('/tab/groups');
@@ -194,10 +180,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('GroupCtrl', function($scope, $stateParams, $http, $location, nemSimpleLogger, uiGmapGoogleMapApi, $window, $cordovaGeolocation, $timeout, $rootScope) {
-
-  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-
-  $http.get('https://locatrbackend.herokuapp.com/groups/'+$stateParams.id).success(function(response){
+  $http.get(apiUrl+'/groups/'+$stateParams.id).success(function(response){
     $scope.group = response;
   }).error(function(response){
     console.log(response);
@@ -251,7 +234,7 @@ angular.module('starter.controllers', [])
         }
       };
 
-      $http.get('https://locatrbackend.herokuapp.com/group/'+$stateParams.id+'/other_users/'+$scope.currentUser.id).success(function(response){
+      $http.get(apiUrl+'/group/'+$stateParams.id+'/other_users/'+$scope.currentUser.id).success(function(response){
         $scope.userMarkers = response;
       })
     });
@@ -264,7 +247,7 @@ angular.module('starter.controllers', [])
   }
 
   $scope.leaveGroup = function(){
-    $http.delete('https://locatrbackend.herokuapp.com/groups/'+$stateParams.id+'/to_delete/'+$scope.currentUser.id).success(function(response){
+    $http.delete(apiUrl+'/groups/'+$stateParams.id+'/to_delete/'+$scope.currentUser.id).success(function(response){
       console.log(response);
       $location.path('/tab/groups');
     }).error(function(response){
@@ -278,7 +261,7 @@ angular.module('starter.controllers', [])
 
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
 
-  $http.get('https://locatrbackend.herokuapp.com/groups/'+$stateParams.id).success(function(response){
+  $http.get(apiUrl+'/groups/'+$stateParams.id).success(function(response){
     $scope.group = response;
   }).error(function(response){
     console.log(response);
@@ -288,8 +271,8 @@ angular.module('starter.controllers', [])
     var data = {
       text: $scope.invitation.text
     }
-    $http.post('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/groups/'+$stateParams.id+'/invitation/'+$scope.invitation.phoneNumber, data).success(function(response){
-      console.log(response);
+    $http.post(apiUrl+'/users/'+$scope.currentUser.id+'/groups/'+$stateParams.id+'/invitation/'+$scope.invitation.phoneNumber, data).success(function(response){
+      $window.location.reload(true);
       $location.path('/tab/group/'+$stateParams.id);
     }).error(function(response){
       $ionicPopup.alert({
@@ -303,12 +286,6 @@ angular.module('starter.controllers', [])
 
 
 .controller('SettingsCtrl', function($scope, $window) {
-  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-
-  console.log($scope.currentUser)
-
-
-
   $scope.settings = {
     allowInvitations: $scope.currentUser.accept_invites,
     goSilent: $scope.currentUser.silent
@@ -327,18 +304,16 @@ angular.module('starter.controllers', [])
   // };
 
   $scope.addGroup = function(){
-    $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-    console.log($scope.currentUser);
     var data = {
       name: $scope.groupData.name
     } 
 
-    $http.post('https://locatrbackend.herokuapp.com/groups', data).success(function(response){
+    $http.post(apiUrl+'/groups', data).success(function(response){
       console.log(response);
       var userData = {
         user_id: $scope.currentUser.id
       }
-      $http.post('https://locatrbackend.herokuapp.com/groups/'+response.id+'/group_users', userData).success(function(resp){
+      $http.post(apiUrl+'/groups/'+response.id+'/group_users', userData).success(function(resp){
         console.log(resp);
         $window.location.reload(true);
         $location.path('/tab/groups');

@@ -5,8 +5,6 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-var fb = new Firebase("https://popping-inferno-7066.firebaseio.com/");
-
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'nemLogging', 'ng-cordova' ,'uiGmapgoogle-maps','ngResource', 'ng-token-auth', 'ngCordova'])
 
 .run(function($ionicPlatform) {
