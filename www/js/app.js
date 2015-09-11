@@ -42,6 +42,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
   // Each tab has its own nav history stack:
 
   .state('tab.invitations', {
+    cached: false,
     url: '/invitations',
     views: {
       'tab-invitations': {
@@ -83,6 +84,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
   .state('tab.group', {
     url: '/group/:id',
+    cached: false,
     views: {
         'tab-groups': {
           templateUrl: 'templates/group.html',

@@ -4,11 +4,11 @@ angular.module('starter.controllers', [])
 
 .controller('TabCtrl', function($scope, $location, $window, $interval, $cordovaGeolocation, $http, $timeout, $rootScope){
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+  console.log($scope.currentUser);
   $scope.logout = function(){
     $window.localStorage.removeItem('current-user');
-
-    $window.location.reload(true);
     $location.path('/login');
+    cordova.plugins.backgroundMode.disable();
   }
 
   document.addEventListener('deviceready', function () {
@@ -39,7 +39,6 @@ angular.module('starter.controllers', [])
 
     var watchOptions = {
       frequency : 1000,
-      timeout : 3000,
       enableHighAccuracy: false // may cause errors if true
     };
 
@@ -120,11 +119,13 @@ angular.module('starter.controllers', [])
 
 .controller('GroupsCtrl', function($scope, $location, $http, $window) {
 
-  $http.get('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/group_users').success(function(response){
-    $scope.groups = response;
-  }).error(function(response){
-    console.log(response);
-  });
+  if ($scope.currentUser.silent === false){
+    $http.get('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/group_users').success(function(response){
+      $scope.groups = response;
+    }).error(function(response){
+      console.log(response);
+    });
+  };
 
   $scope.goAdd = function(){
     $location.path('/tab/addgroup');
@@ -285,11 +286,39 @@ angular.module('starter.controllers', [])
 })
 
 
-.controller('SettingsCtrl', function($scope, $window) {
+.controller('SettingsCtrl', function($scope, $window, $http) {
   $scope.settings = {
     allowInvitations: $scope.currentUser.accept_invites,
     goSilent: $scope.currentUser.silent
   };
+
+  $scope.$watch('settings.allowInvitations',function(value) {
+    data = {
+      user: {
+        accept_invites: value
+      }
+    }
+    $http.put(apiUrl+'/settings/'+$scope.currentUser.id, data).success(function(response){
+      $scope.currentUser.accept_invites = value;
+      $window.localStorage.setItem('current-user',JSON.stringify($scope.currentUser));
+    }).error(function(response){
+      console.log(response);
+    })
+  })
+
+  $scope.$watch('settings.goSilent',function(value) {
+    data = {
+      user: {
+        silent: value
+      }
+    }
+    $http.put(apiUrl+'/settings/'+$scope.currentUser.id, data).success(function(response){
+      $scope.currentUser.silent = value;
+      $window.localStorage.setItem('current-user',JSON.stringify($scope.currentUser));
+    }).error(function(response){
+      console.log(response);
+    })
+  })
 })
 
 .controller('AddGroupCtrl', function($scope, $cordovaFileTransfer, $location, $http, $window){

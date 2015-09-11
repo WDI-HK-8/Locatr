@@ -1,5 +1,5 @@
 <ion-view view-title="{{ group.name }}">      
-  <ion-content data-tap-disabled="true">
+  <ion-content data-tap-disabled="true" overflow-scroll="true">
     <ui-gmap-google-map center='map.center' zoom='map.zoom' events="map.markersEvents" width="100px" height="100px">
       <ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id" closeClick="hideMarkerPopup()" onClicked="showMarkerPopup()">
       </ui-gmap-marker>
