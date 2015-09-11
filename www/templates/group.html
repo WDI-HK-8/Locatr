@@ -4,16 +4,14 @@
       <ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id" closeClick="hideMarkerPopup()" onClicked="showMarkerPopup()">
       </ui-gmap-marker>
       <ui-gmap-markers
-	     	models  = "pickUpMarkers"
+	     	models  = "userMarkers"
 	     	coords  = "'self'"
 	     	icon    = "'icon'"
 	     	click  =  "clickPin">
 	     	<ui-gmap-windows show="show">
 	       	<div ng-non-bindable>
-	         	<h2>{{title}}</h2>
-	         	<p>{{name}}</p>
-	         	<p>{{location}}</p>
-	         	<p>{{car_make}}</p>
+	         	<h2>{{name}}</h2>
+	         	<p>{{phone_number}}</p>
 	       	</div>
 	     	</ui-gmap-windows>
 	   	</ui-gmap-markers>        
