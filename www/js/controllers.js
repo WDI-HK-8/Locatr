@@ -17,50 +17,37 @@ angular.module('starter.controllers', [])
     }
 
     cordova.plugins.backgroundMode.enable();
-    var posOptions = { timeout: 5000, enableHighAccuracy: true, maximumAge: 5000 };
-    $cordovaGeolocation.getCurrentPosition(posOptions)
-      .then(function (location) {
-      $rootScope.currentLat = location.coords.latitude;
-      $rootScope.currentLong = location.coords.longitude;
+    var updatePosition = function(){
+      $interval(function(){
+        var posOptions = { timeout: 5000, enableHighAccuracy: true, maximumAge: 5000 };
+        $cordovaGeolocation.getCurrentPosition(posOptions)
+          .then(function (location) {
+          $rootScope.currentLat = location.coords.latitude;
+          $rootScope.currentLong = location.coords.longitude;
 
-      var data = {
-        user: {
-          'latitude': $rootScope.currentLat,
-          'longitude': $rootScope.currentLong
-        }
-      };
+          var data = {
+            user: {
+              'latitude': $rootScope.currentLat,
+              'longitude': $rootScope.currentLong
+            }
+          };
 
-      $http.put(apiUrl+'/coordinates/'+$scope.currentUser.id, data).success(function(response){
-        console.log(response);
-      }).error(function(response){
-        console.log(response);
-      })
-    });
+          $http.put(apiUrl+'/coordinates/'+$scope.currentUser.id, data).success(function(response){
+            console.log(response);
+          }).error(function(response){
+            console.log(response);
+          })
+        });
+      }, 5000)
+    }
 
-    var watchOptions = {
-      frequency : 1000,
-      timeout: 3000,
-      enableHighAccuracy: false // may cause errors if true
-    };
+    updatePosition();
+
+    cordova.plugins.backgroundMode.onactivate = function(){
+      updatePosition();
+    }
 
 
-    var watch = $cordovaGeolocation.watchPosition(watchOptions);
-    watch.then(
-      function(position) {
-        var data = {
-          user: {
-            'latitude': position.coords.latitude,
-            'longitude': position.coords.longitude
-          }
-        };
-        $http.put(apiUrl+'/coordinates/'+$scope.currentUser.id, data).success(function(response){
-          console.log(response);
-        }).error(function(response){
-          console.log(response);
-        })
-      }, function(err) {
-        console.log(err);
-      });
   });
 })
 
@@ -194,14 +181,8 @@ angular.module('starter.controllers', [])
   var posOptions = { timeout: 5000, enableHighAccuracy: true, maximumAge: 5000 };
   $cordovaGeolocation.getCurrentPosition(posOptions)
     .then(function (location) {
-
     $rootScope.currentLat = location.coords.latitude;
     $rootScope.currentLong = location.coords.longitude;
-
-    console.log($rootScope.currentLat);
-    console.log($rootScope.currentLong);
-
-
   })
 
   $scope.myLocation = {
