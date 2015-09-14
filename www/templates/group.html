@@ -1,38 +1,43 @@
 <ion-view view-title="{{ group.name }}">      
   <ion-content data-tap-disabled="true" overflow-scroll="true">
-    <ui-gmap-google-map center='map.center' zoom='map.zoom' events="map.markersEvents" width="100px" height="100px">
-      <ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id" closeClick="hideMarkerPopup()" onClicked="showMarkerPopup()">
-      </ui-gmap-marker>
-      <ui-gmap-markers
-	     	models  = "userMarkers"
-	     	coords  = "'self'"
-	     	icon    = "'icon'"
-	     	click  =  "clickPin">
-	     	<ui-gmap-windows show="show">
-	       	<div ng-non-bindable>
-	         	<h3>{{name}}</h3>
-	         	 <a href="tel:{{phone_number}}" class="button button-clear button-royal button-small">Call me at {{phone_number}}</a>
-	       	</div>
-	     	</ui-gmap-windows>
-	   	</ui-gmap-markers>        
-    </ui-gmap-google-map>
-		<ion-list>
-      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="user in userMarkers" type="item-text-wrap">
-        <img ng-src="{{user.image}}" onerror="this.src='https://cdn3.iconfinder.com/data/icons/token/128/People-MSN.png'">
-        <h2>{{user.name}}</h2>
-        <a href="tel:+{{user.phone_number}}">Call me at {{user.phone_number}}</a>
-      </ion-item>
-    </ion-list>
-    
-
-		<div id="group-buttons">
-	    <button class="button button-positive group-button" ng-click="goInvite()">
-			  Invite User
-			 </button>
-
-			<button class="button button-assertive group-button" ng-click="leaveGroup()">
-			  Leave Group
-			</button>
+  	<div id="map">
+	    <ui-gmap-google-map center='map.center' zoom='map.zoom' events="map.markersEvents">
+	      <ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id" closeClick="hideMarkerPopup()" onClicked="showMarkerPopup()">
+	      </ui-gmap-marker>
+	      <ui-gmap-markers
+		     	models  = "userMarkers"
+		     	coords  = "'self'"
+		     	icon    = "'icon'"
+		     	click  =  "clickPin">
+		     	<ui-gmap-windows show="show">
+		       	<div ng-non-bindable>
+		         	<h5>{{name}}</h5>
+		         	<a href="tel:+{{user.phone_number}}"><i class="icon ion-ios-telephone"></i></a>
+		       	</div>
+		     	</ui-gmap-windows>
+		   	</ui-gmap-markers>        
+	    </ui-gmap-google-map>
+    </div>
+    <div id="info">
+			<ion-list>
+	      <ion-item class="item item-icon-right" ng-repeat="user in userMarkers">
+	        <p>{{user.name}}</p>
+	        <a href="tel:+{{user.phone_number}}"><i class="icon ion-ios-telephone"></i></a>
+	      </ion-item>
+	    </ion-list>
+			<div id="group-buttons">
+				<div class="group-button">
+			    <button class="button button-positive button-small" ng-click="goInvite()">
+					  Invite User
+				 	</button>
+				 </div>
+				
+				<div class="group-button">
+					<button class="button button-assertive button-small" ng-click="leaveGroup()">
+				  	Leave Group
+					</button>
+				</div>
+			</div>
 		</div>
   </ion-content>
 </ion-view>

@@ -3,7 +3,14 @@ var apiUrl = 'https://locatrbackend.herokuapp.com'
 angular.module('starter.controllers', [])
 
 .controller('TabCtrl', function($scope, $location, $window, $interval, $cordovaGeolocation, $http, $timeout, $rootScope){
+  $scope.data = {};
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+  $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
+    $scope.data = response;
+  }).error(function(response){
+    console.log(response);
+  })
+
   console.log($scope.currentUser);
   $scope.logout = function(){
     $window.localStorage.removeItem('current-user');
@@ -51,12 +58,16 @@ angular.module('starter.controllers', [])
   });
 })
 
-.controller('InvitationsCtrl', function($scope, $http, $window) {
-  $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
-    $scope.invitationsReceived = response;
-  }).error(function(response){
-    console.log(response);
-  })
+.controller('InvitationsCtrl', function($scope, $http, $window, $location) {
+  var getReceived = function(){
+    $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
+      $scope.invitationsReceived = response;
+    }).error(function(response){
+      console.log(response);
+    })
+  }
+
+  getReceived();
 
   $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/sent').success(function(response){
     $scope.invitationsSent = response;
@@ -78,7 +89,7 @@ angular.module('starter.controllers', [])
       }
       $http.post(apiUrl+'/groups/'+$scope.invitationToAccept.group_id+'/group_users', groupUserData).success(function(response){
         console.log(response);
-        $window.location.reload(true);
+        getReceived();
       }).error(function(response){
         console.log(response);
       })
@@ -299,6 +310,7 @@ angular.module('starter.controllers', [])
 
 .controller('AddGroupCtrl', function($scope, $cordovaFileTransfer, $location, $http, $window, $ionicPopup){
   $scope.groupData = {}
+  $scope.image = {}
   
   $scope.addGroup = function(){
     // var data = {
@@ -348,5 +360,7 @@ angular.module('starter.controllers', [])
         title: 'Oops! There was an error inputting the group!'      
         });
       }, function(progress){});
-    };
+  };
+
+    
 });
