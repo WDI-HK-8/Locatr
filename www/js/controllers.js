@@ -108,7 +108,7 @@ angular.module('starter.controllers', [])
 .controller('GroupsCtrl', function($scope, $location, $http, $window) {
 
   if ($scope.currentUser.silent === false){
-    $http.get('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/group_users').success(function(response){
+    $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/group_users').success(function(response){
       $scope.groups = response;
     }).error(function(response){
       console.log(response);
@@ -132,11 +132,8 @@ angular.module('starter.controllers', [])
   $scope.login = function() {
     $auth.submitLogin($scope.loginData).then(function(response){
       console.log(response);
-
       $window.localStorage.setItem('current-user',JSON.stringify(response));
-
       $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-
       $window.location.reload(true);
       $location.path('/tab/groups');
     }).catch(function(response){
@@ -150,12 +147,10 @@ angular.module('starter.controllers', [])
 
   $scope.doSignup = function() {
     $auth.submitRegistration($scope.signupData).then(function(response){
-      console.log(response);
-
+      $ionicPopup.alert({
+        title: 'Congrats! Signup complete'      
+      });
       $window.localStorage.setItem('current-user',JSON.stringify(response.data.data));
-
-      validateUser();
-
       $window.location.reload(true);
       $location.path('/tab/groups');
     }).catch(function(response){
@@ -255,7 +250,6 @@ angular.module('starter.controllers', [])
       text: $scope.invitation.text
     }
     $http.post(apiUrl+'/users/'+$scope.currentUser.id+'/groups/'+$stateParams.id+'/invitation/'+$scope.invitation.phoneNumber, data).success(function(response){
-      $window.location.reload(true);
       $location.path('/tab/group/'+$stateParams.id);
     }).error(function(response){
       $ionicPopup.alert({
@@ -303,36 +297,56 @@ angular.module('starter.controllers', [])
   })
 })
 
-.controller('AddGroupCtrl', function($scope, $cordovaFileTransfer, $location, $http, $window){
+.controller('AddGroupCtrl', function($scope, $cordovaFileTransfer, $location, $http, $window, $ionicPopup){
   $scope.groupData = {}
-  // $scope.upload = function() {
-  //   var options = {
-  //     fileKey: "avatar",
-  //     fileName: "image.png",
-  //     chunkedMode: false,
-  //     mimeType: "image/png"
-  //   };
-  // };
-
+  
   $scope.addGroup = function(){
-    var data = {
-      name: $scope.groupData.name
-    } 
+    // var data = {
+    //   name: $scope.groupData.name
+    // } 
 
-    $http.post(apiUrl+'/groups', data).success(function(response){
-      console.log(response);
-      var userData = {
-        user_id: $scope.currentUser.id
-      }
-      $http.post(apiUrl+'/groups/'+response.id+'/group_users', userData).success(function(resp){
-        console.log(resp);
-        $window.location.reload(true);
-        $location.path('/tab/groups');
-      }).error(function(resp){
-        console.log(resp);
-      })
-    }).error(function(response){
-      console.log(response);
-    })
-  }
+    // $http.post(apiUrl+'/groups', data).success(function(response){
+    //   console.log(response);
+    //   var userData = {
+    //     user_id: $scope.currentUser.id
+    //   }
+    //   $http.post(apiUrl+'/groups/'+response.id+'/group_users', userData).success(function(resp){
+    //     console.log(resp);
+    //     $window.location.reload(true);
+    //     $location.path('/tab/groups');
+    //   }).error(function(resp){
+    //     console.log(resp);
+    //   })
+    // }).error(function(response){
+    //   console.log(response);
+    // })
+
+    var options = {
+      fileKey: "image",
+      fileName: "image.png",
+      chunkedMode: false,
+      mimeType: "image/png",
+      params: { name: $scope.groupData.name}
+    };
+
+    $cordovaFileTransfer.upload(apiUrl+'/groups', $scope.image.file, options)
+      .then(function(result){
+        $ionicPopup.alert({
+        title: 'Congrats! A new group '+$scope.groupData.name+' has been added.'      
+        });
+        $http.post(apiUrl+'/groups/'+response.id+'/group_users', userData).success(function(resp){
+          console.log(resp);
+          $window.location.reload(true);
+          $location.path('/tab/groups');
+        }).error(function(resp){
+          $ionicPopup.alert({
+          title: 'Oops! There was an error adding you to the group!'      
+          });
+        })
+      }, function(response){
+        $ionicPopup.alert({
+        title: 'Oops! There was an error inputting the group!'      
+        });
+      }, function(progress){});
+    };
 });

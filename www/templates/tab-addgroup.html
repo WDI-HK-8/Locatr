@@ -5,8 +5,11 @@
         <span class="input-label">Name</span>
         <input type="text" placeholder="Name of Group" ng-model="groupData.name">
       </label>
+      <label class="item item-input">
+        <span class="input-label">Image</span>
+        <input ngf-select ng-model="image.file" type="file" id="add_item_pic_id" name="pic" accept="image/*">
+      </label>
     </div>
-
     <div class="padding">
       <button class="button button-block button-calm" ng-click="addGroup()">Add Group</button>
     </div>

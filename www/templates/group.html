@@ -18,9 +18,9 @@
     </ui-gmap-google-map>
 		<ion-list>
       <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="user in userMarkers" type="item-text-wrap">
-        <img ng-src="{{user.image}}">
+        <img ng-src="{{user.image}}" onerror="this.src='https://cdn3.iconfinder.com/data/icons/token/128/People-MSN.png'">
         <h2>{{user.name}}</h2>
-        <a href="tel:{{phone_number}}">Call me at {{user.phone_number}}</a>
+        <a href="tel:+{{user.phone_number}}">Call me at {{user.phone_number}}</a>
       </ion-item>
     </ion-list>
     

@@ -35,6 +35,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     .state('tab', {
     url: '/tab',
     abstract: true,
+    cached: false,
     templateUrl: 'templates/tabs.html',
     controller: 'TabCtrl'
   })
@@ -104,6 +105,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     })
 
   .state('login', {
+    cached: false,
     url: '/login',
     templateUrl: 'templates/login.html',
     controller: 'LoginCtrl'
