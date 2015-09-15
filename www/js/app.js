@@ -109,6 +109,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     url: '/login',
     templateUrl: 'templates/login.html',
     controller: 'LoginCtrl'
+  })
+
+  .state('signup',{
+    cached: false,
+    url: '/signup',
+    templateUrl: 'templates/signup.html',
+    controller: 'SignupCtrl'
   });
 
   // if none of the above states are matched, use this as the fallback

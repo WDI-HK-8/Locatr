@@ -21,7 +21,7 @@
     <div id="info">
 			<ion-list>
 	      <ion-item class="item item-icon-right" ng-repeat="user in userMarkers">
-	        <p>{{user.name}}</p>
+	        <p onclick="myClick(user.id)">{{user.name}}</p>
 	        <a href="tel:+{{user.phone_number}}"><i class="icon ion-ios-telephone"></i></a>
 	      </ion-item>
 	    </ion-list>
