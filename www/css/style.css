@@ -1,9 +1,14 @@
 .angular-google-map-container { height: 500px; }
 
-h2 {
+#loginList h2, #signupList h2 {
 	text-align: center;
 	padding-top: 5px;
 	padding-bottom: 5px;
+	color: white;
+}
+
+#invitations {
+	text-align: center;
 }
 
 .marker-labels {
@@ -45,14 +50,16 @@ h2 {
 	display: inline-block;
 	text-align: right;
 	margin-bottom: 0;
-	margin-top: 0;
+	margin-left: auto;
+	margin-top: 5px;
+	margin-right: auto;
 }
 
 h5 {
 	text-align: center;
 }
 
-#map {
+/*#map {
 	width: 67%;
 	margin: 0;
 	display: inline-block;
@@ -64,11 +71,54 @@ h5 {
 	margin: 0;
 	display: inline-block;
 	float: right;
-}
+}*/
 
 #loginList, #signupList {
 	width: 75%;
 	margin-top: 50px;
 	margin-left: auto;
 	margin-right: auto;
+	border-radius: 5px;
+	background-color: #03A9F4;
+	padding: 15px;
 }
+
+#loginList .input-label, #signupList .input-label {
+	color: white;
+}
+
+.scroll-content{
+	background-image:url("../img/map-background.jpg");
+}
+
+#loginList .item-input, #signupList .item-input {
+	border-left: 0;
+	border-right: 0;
+	width: 75%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#loginList input, #signupList input {
+	color: white;
+}
+
+input::-webkit-input-placeholder {
+   color: white;
+}
+
+input:-moz-placeholder { /* Firefox 18- */
+   color: white;  
+}
+
+input::-moz-placeholder {  /* Firefox 19+ */
+   color: white;  
+}
+
+input:-ms-input-placeholder {  
+   color: white;  
+}
+
+/*ion-item.item:hover a {
+  background-color: slategray;
+}*/

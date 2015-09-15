@@ -216,8 +216,8 @@ angular.module('starter.controllers', [])
           latitude: $scope.myLocation.lat,
           longitude: $scope.myLocation.lng
         },
-        zoom: 14,
-        pan: 2
+        zoom: 20,
+        pan: 2,
       };
 
       $scope.marker = {
@@ -228,24 +228,36 @@ angular.module('starter.controllers', [])
         },
         options: {
          animation: google.maps.Animation.BOUNCE,
-         icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
-        }
+         icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png',
+         zIndex: 0
+        },
       };
 
       $http.get(apiUrl+'/group/'+$stateParams.id+'/other_users/'+$scope.currentUser.id).success(function(response){
         $scope.userMarkers = response;
-        console.log($scope.userMarkers[0].id);
-        $scope.markers = [];
-        $scope.markers.push($scope.userMarkers);
-        console.log($scope.markers);
+        for (i = 0; i < $scope.userMarkers.length; i++){
+          $scope.userMarkers[i].show = true;
+        }
+        console.log($scope.userMarkers);
       })
+
+      $scope.windowOptions = {
+        visible: true
+      };
     });
   }
 
   navigator.geolocation.getCurrentPosition($scope.drawSelfMap);
 
+  angular.forEach($scope.userMarkers,function(marker){
+        marker.onClicked = function(){
+          alert(marker.id);
+          onMarkerClicked(marker.id);
+        };
+ });
+
   $scope.myClick = function(id){
-        google.maps.event.trigger(markers[id], 'click');
+    $scope.map.event.trigger($scope.userMarkers[id], 'click');
   } 
 
   $scope.goInvite = function(){

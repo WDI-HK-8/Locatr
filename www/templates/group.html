@@ -1,42 +1,40 @@
-<ion-view view-title="{{ group.name }}">      
+<ion-view view-title="{{ group.name }}">
   <ion-content data-tap-disabled="true" overflow-scroll="true">
   	<div id="map">
 	    <ui-gmap-google-map center='map.center' zoom='map.zoom' events="map.markersEvents">
-	      <ui-gmap-marker coords="marker.coords" options="marker.options" events="marker.events" idkey="marker.id" closeClick="hideMarkerPopup()" onClicked="showMarkerPopup()">
-	      </ui-gmap-marker>
 	      <ui-gmap-markers
 		     	models  = "userMarkers"
 		     	coords  = "'self'"
 		     	icon    = "'icon'"
-		     	click  =  "clickPin">
-		     	<ui-gmap-windows show="show">
+		     	click  	=  "clickPin"
+		     	fit			=		"true">
+		     	<ui-gmap-windows>
 		       	<div ng-non-bindable>
 		         	<h5>{{name}}</h5>
-		         	<a href="tel:+{{user.phone_number}}"><i class="icon ion-ios-telephone"></i></a>
+		         	<a href="tel:+{{phone_number}}"><i class="icon ion-ios-telephone"></i></a>
 		       	</div>
 		     	</ui-gmap-windows>
-		   	</ui-gmap-markers>        
+		   	</ui-gmap-markers>
+		   	<ui-gmap-marker coords="marker.coords" options="marker.options" idkey="marker.id" closeClick="hideMarkerPopup()" onClicked="showMarkerPopup()">
+	      </ui-gmap-marker>        
 	    </ui-gmap-google-map>
     </div>
     <div id="info">
 			<ion-list>
-	      <ion-item class="item item-icon-right" ng-repeat="user in userMarkers">
-	        <p onclick="myClick(user.id)">{{user.name}}</p>
+	      <ion-item class="item item-text-wrap item-remove-animate item-avatar item-icon-right" ng-repeat="user in userMarkers" style="color:#0000FF">
+	      	<img ng-src="{{user.image}}" onerror="this.src='img/icon.jpg'">
+	        <p ng-click="myClick({{user.id}})">{{user.name}}</p>
 	        <a href="tel:+{{user.phone_number}}"><i class="icon ion-ios-telephone"></i></a>
 	      </ion-item>
 	    </ion-list>
 			<div id="group-buttons">
-				<div class="group-button">
-			    <button class="button button-positive button-small" ng-click="goInvite()">
+			   <button class="button button-positive invite-button button-small" ng-click="goInvite()">
 					  Invite User
-				 	</button>
-				 </div>
+				 </button>
 				
-				<div class="group-button">
-					<button class="button button-assertive button-small" ng-click="leaveGroup()">
-				  	Leave Group
-					</button>
-				</div>
+				<button class="button button-assertive invite-button button-small" ng-click="leaveGroup()">
+				  Leave Group
+				</button>
 			</div>
 		</div>
   </ion-content>
