@@ -91,6 +91,10 @@ h5 {
 	background-image:url("../img/map-background.jpg");
 }
 
+h2 {
+	color: #727272;
+}
+
 #loginList .item-input, #signupList .item-input {
 	border-left: 0;
 	border-right: 0;

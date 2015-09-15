@@ -1,7 +1,7 @@
 <ion-view view-title="{{currentUser.name}}'s Groups" cache-view="false">
   <ion-content>
     <ion-list>
-      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="group in groups" type="item-text-wrap" href="#/tab/group/{{group.id}}">
+      <ion-item class="item-remove-animate group-list item-avatar item-icon-right" ng-repeat="group in groups" type="item-text-wrap" href="#/tab/group/{{group.id}}">
         <img ng-src="{{group.image}}" onerror="this.src='img/icon.jpg'">
         <h2>{{group.name}}</h2>
         <i class="icon ion-chevron-right icon-accessory"></i>
