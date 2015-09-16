@@ -39,8 +39,8 @@ angular.module('starter.controllers', [])
         var posOptions = { timeout: 5000, enableHighAccuracy: true, maximumAge: 5000 };
         $cordovaGeolocation.getCurrentPosition(posOptions)
           .then(function (location) {
-          $rootScope.currentLat = location.coords.latitude;
-          $rootScope.currentLong = location.coords.longitude;
+          $scope.currentUser.latitude = location.coords.latitude;
+          $scope.currentUser.longitude = location.coords.longitude;
 
           var data = {
             user: {
@@ -214,24 +214,9 @@ angular.module('starter.controllers', [])
   nemSimpleLogger.doLog = true; //default is true
   nemSimpleLogger.currentLevel = nemSimpleLogger.LEVELS.debug
 
-  var posOptions = { timeout: 5000, enableHighAccuracy: true, maximumAge: 5000 };
-  $cordovaGeolocation.getCurrentPosition(posOptions)
-    .then(function (location) {
-    $rootScope.currentLat = location.coords.latitude;
-    $rootScope.currentLong = location.coords.longitude;
-  })
-
-  $scope.myLocation = {
-    lng : '',
-    lat: ''
-  }
-
   $scope.drawSelfMap = function(position) { 
      //$scope.$apply is needed to trigger the digest cycle when the geolocation arrives and to update all the watchers
     $scope.$apply(function() {
-      $scope.myLocation.lng = position.coords.longitude;
-      $scope.myLocation.lat = position.coords.latitude;
-
       $http.get(apiUrl+'/group/'+$stateParams.id+'/other_users/'+$scope.currentUser.id).success(function(response){
         $scope.userMarkers = response;
         for (i = 0; i < $scope.userMarkers.length; i++){
@@ -240,8 +225,8 @@ angular.module('starter.controllers', [])
         console.log($scope.userMarkers);
         $scope.map = {
           center: {
-            latitude: $scope.myLocation.lat,
-            longitude: $scope.myLocation.lng
+            latitude: $scope.currentUser.latitude,
+            longitude: $scope.currentUser.longitude
           },
           zoom: 20,
           pan: 2,
@@ -251,8 +236,8 @@ angular.module('starter.controllers', [])
     $scope.marker = {
       id: "you",
       coords: {
-        latitude: $scope.myLocation.lat,
-        longitude: $scope.myLocation.lng
+        latitude: $scope.currentUser.latitude,
+        longitude: $scope.currentUser.longitude
       },
       phoneNumber: $scope.currentUser.phoneNumber,
       email: $scope.currentUser.email,
@@ -282,6 +267,22 @@ angular.module('starter.controllers', [])
         console.log($scope.userMarkers);
       });
     }, 60000)
+
+    $scope.marker = {
+      id: "you",
+      coords: {
+        latitude: $scope.currentUser.latitude,
+        longitude: $scope.currentUser.longitude
+      },
+      phoneNumber: $scope.currentUser.phoneNumber,
+      email: $scope.currentUser.email,
+      show: true,
+      options: {
+       animation: google.maps.Animation.BOUNCE,
+       icon: 'http://labs.google.com/ridefinder/images/mm_20_green.png',
+       zIndex: 0
+      },
+    };
   };
 
   var clicked = 0;
