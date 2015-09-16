@@ -3,22 +3,7 @@ Create tabs with an icon and label, using the tabs-positive style.
 Each tab's child <ion-nav-view> directive will have its own
 navigation history that also transitions its views in and out.
 -->
-<ion-side-menus enable-menu-with-back-views="false">
-  <ion-side-menu-content>
-    <ion-nav-bar class="bar-stable">
-      <ion-nav-back-button>
-      </ion-nav-back-button>
-
-      <ion-nav-buttons side="left">
-        <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
-        </button>
-      </ion-nav-buttons>
-    </ion-nav-bar>
-    <ion-nav-view name="menuContent"></ion-nav-view>
-  </ion-side-menu-content>
-</ion-side-menus>
-
-<ion-tabs class="tabs-icon-top tabs-color-active-positive">
+<ion-tabs class="tabs-icon-top tabs-background-positive tabs-color-light" cache-view="false">
 
   <!-- Settings Tab -->
   <ion-tab title="Settings" icon-off="ion-ios-gear-outline" icon-on="ion-ios-gear" href="#/tab/settings">
@@ -31,7 +16,7 @@ navigation history that also transitions its views in and out.
   </ion-tab>
 
   <!-- Invitations Tab -->
-  <ion-tab title="Invitations" icon-off="ion-ios-personadd-outline" icon-on="ion-ios-personadd" href="#/tab/invitations">
+  <ion-tab title="Invitations" icon-off="ion-ios-personadd-outline" icon-on="ion-ios-personadd" href="#/tab/invitations" badge="data.length" badge-style="badge-assertive" cache-view="false">
     <ion-nav-view name="tab-invitations"></ion-nav-view>
   </ion-tab>
 

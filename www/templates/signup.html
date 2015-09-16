@@ -1,0 +1,24 @@
+<ion-view view-title="Sign-Up" name="login-view" cache-view="false">
+  <ion-content>
+    <div class="list" id="signupList">
+      <h2>Sign-Up</h2>
+      <label class="item item-input item-floating-label">
+        <span class="input-label">Name</span>
+        <input type="text" placeholder="Name" ng-model="signupData.name">
+      </label>
+      <label class="item item-input item-floating-label">
+        <span class="input-label">Phone Number</span>
+        <input type="text" placeholder="Phone Number" ng-model="signupData.phone_number">
+      </label>
+      <label class="item item-input item-floating-label">
+        <span class="input-label">Email</span>
+        <input type="email" placeholder="Email" ng-model="signupData.email">
+      </label>
+      <label class="item item-input item-floating-label">
+        <span class="input-label">Password</span>
+        <input type="password" placeholder="Password" ng-model="signupData.password">
+      </label>
+      <button class="button button-block button-calm" ng-click="doSignup()">Sign Up</button>
+    </div>
+  </ion-content>
+</ion-view>

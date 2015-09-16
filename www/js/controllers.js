@@ -1,9 +1,32 @@
-var apiUrl = 'https://locatrbackend.herokuapp.com'
+var apiUrl = 'https://locatrbackend.herokuapp.com';
 
 angular.module('starter.controllers', [])
 
-.controller('TabCtrl', function($scope, $location, $window, $interval, $cordovaGeolocation, $http, $timeout, $rootScope){
+.controller('TabCtrl', function($scope, $location, $window, $interval, $cordovaGeolocation, $http, $timeout, $ionicLoading){
+  $scope.show = function() {
+    $ionicLoading.show({
+      template: '<p>Loading...</p><ion-spinner></ion-spinner>'
+    });
+  };
+
+  $scope.hide = function(){
+    $ionicLoading.hide();
+  };
+
+  $scope.data = {};
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+  var getInvitation = function(){
+    $interval(function(){
+      $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
+        $scope.data = response;
+      }).error(function(response){
+        console.log(response);
+      })
+    }, 5000)
+  }
+  
+  getInvitation();
+
   console.log($scope.currentUser);
   $scope.logout = function(){
     $window.localStorage.removeItem('current-user');
@@ -17,67 +40,57 @@ angular.module('starter.controllers', [])
     }
 
     cordova.plugins.backgroundMode.enable();
-    var posOptions = { timeout: 5000, enableHighAccuracy: true, maximumAge: 5000 };
-    $cordovaGeolocation.getCurrentPosition(posOptions)
-      .then(function (location) {
-      $rootScope.currentLat = location.coords.latitude;
-      $rootScope.currentLong = location.coords.longitude;
+    var updatePosition = function(){
+      $interval(function(){
+        var posOptions = { timeout: 5000, enableHighAccuracy: true, maximumAge: 5000 };
+        $cordovaGeolocation.getCurrentPosition(posOptions)
+          .then(function (location) {
+          $scope.currentUser.latitude = location.coords.latitude;
+          $scope.currentUser.longitude = location.coords.longitude;
+          $window.localStorage.setItem('current-user',JSON.stringify($scope.currentUser));
+          var data = {
+            user: {
+              'latitude': $scope.currentUser.latitude,
+              'longitude': $scope.currentUser.longitude
+            }
+          };
 
-      var data = {
-        user: {
-          'latitude': $rootScope.currentLat,
-          'longitude': $rootScope.currentLong
-        }
-      };
+          $http.put(apiUrl+'/coordinates/'+$scope.currentUser.id, data).success(function(response){
+            console.log(response);
+          }).error(function(response){
+            console.log(response);
+          })
+        });
+      }, 3000)
+    }
 
-      $http.put(apiUrl+'/coordinates/'+$scope.currentUser.id, data).success(function(response){
-        console.log(response);
-      }).error(function(response){
-        console.log(response);
-      })
-    });
+    updatePosition();
 
-    var watchOptions = {
-      frequency : 1000,
-      timeout: 3000,
-      enableHighAccuracy: false // may cause errors if true
-    };
-
-
-    var watch = $cordovaGeolocation.watchPosition(watchOptions);
-    watch.then(
-      function(position) {
-        var data = {
-          user: {
-            'latitude': position.coords.latitude,
-            'longitude': position.coords.longitude
-          }
-        };
-        $http.put(apiUrl+'/coordinates/'+$scope.currentUser.id, data).success(function(response){
-          console.log(response);
-        }).error(function(response){
-          console.log(response);
-        })
-      }, function(err) {
-        console.log(err);
-      });
+    cordova.plugins.backgroundMode.onactivate = function(){
+      updatePosition();
+    }
   });
 })
 
-.controller('InvitationsCtrl', function($scope, $http, $window) {
-  $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
-    $scope.invitationsReceived = response;
-  }).error(function(response){
-    console.log(response);
-  })
+.controller('InvitationsCtrl', function($scope, $http, $window, $location, $ionicLoading) {
 
-  $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/sent').success(function(response){
-    $scope.invitationsSent = response;
-  }).error(function(response){
-    console.log(response);
-  })
+  $scope.show($ionicLoading);
+
+  var getReceived = function(){
+    $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
+      $scope.invitationsReceived = response;
+      $scope.data = response;
+      $scope.hide($ionicLoading);
+    }).error(function(response){
+      console.log(response);
+      $scope.hide($ionicLoading);
+    })
+  }
+
+  getReceived();
 
   $scope.acceptInvite = function(index){
+    $scope.show($ionicLoading);
     var data = {
       accepted: true
     }
@@ -91,17 +104,22 @@ angular.module('starter.controllers', [])
       }
       $http.post(apiUrl+'/groups/'+$scope.invitationToAccept.group_id+'/group_users', groupUserData).success(function(response){
         console.log(response);
-        $window.location.reload(true);
+        getReceived();
+        $scope.hide($ionicLoading);
       }).error(function(response){
         console.log(response);
+        $scope.hide($ionicLoading);
       })
       console.log(response);
+      $scope.hide($ionicLoading);
     }).error(function(response){
       console.log(response);
+      $scope.hide($ionicLoading);
     })
   }
 
   $scope.rejectInvite = function(index){
+    $scope.show($ionicLoading);
     var data = {
       rejected: true
     }
@@ -111,45 +129,51 @@ angular.module('starter.controllers', [])
     $http.put(apiUrl+'/invitation/'+$scope.invitationToReject.id, data).success(function(response){
       $window.location.reload(true);
       console.log(response);
+      $scope.hide($ionicLoading);
     }).error(function(response){
       console.log(response);
+      $scope.hide($ionicLoading);
     })
   }
 
 })
 
-.controller('GroupsCtrl', function($scope, $location, $http, $window) {
+.controller('GroupsCtrl', function($scope, $location, $http, $window, $ionicLoading) {
+
+  $scope.show($ionicLoading);
 
   if ($scope.currentUser.silent === false){
-    $http.get('https://locatrbackend.herokuapp.com/users/'+$scope.currentUser.id+'/group_users').success(function(response){
+    $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/group_users').success(function(response){
       $scope.groups = response;
+      $scope.hide($ionicLoading);
     }).error(function(response){
       console.log(response);
+      $scope.hide($ionicLoading);
     });
-  };
+  } else {
+    $scope.hide($ionicLoading);
+  }
+  ;
+
 
   $scope.goAdd = function(){
     $location.path('/tab/addgroup');
   }
 })
 
-.controller('LoginCtrl', function($scope, $ionicModal, $timeout, $auth, $ionicPopup, $window, $location) {
+.controller('LoginCtrl', function($scope, $timeout, $auth, $ionicPopup, $window, $location) {
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
 
   if ($scope.currentUser!=null){
     $location.path('/tab/groups');
   };
   $scope.loginData = {};
-  $scope.signupData = {};
 
   $scope.login = function() {
     $auth.submitLogin($scope.loginData).then(function(response){
       console.log(response);
-
       $window.localStorage.setItem('current-user',JSON.stringify(response));
-
       $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-
       $window.location.reload(true);
       $location.path('/tab/groups');
     }).catch(function(response){
@@ -160,17 +184,15 @@ angular.module('starter.controllers', [])
       });
     });
   };
+})
 
+.controller('SignupCtrl',function($scope, $location, $http, $window, $auth, $ionicPopup){
+  $scope.signupData = {};
   $scope.doSignup = function() {
     $auth.submitRegistration($scope.signupData).then(function(response){
-      console.log(response);
-
       $window.localStorage.setItem('current-user',JSON.stringify(response.data.data));
-
-      validateUser();
-
       $window.location.reload(true);
-      $location.path('/tab/groups');
+      $location.path('/login');
     }).catch(function(response){
       console.log(response);
       $ionicPopup.alert({
@@ -181,7 +203,14 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('GroupCtrl', function($scope, $stateParams, $http, $location, nemSimpleLogger, uiGmapGoogleMapApi, $window, $cordovaGeolocation, $timeout, $rootScope) {
+.controller('GroupCtrl', function($scope, $stateParams, $http, $location, nemSimpleLogger, uiGmapGoogleMapApi, $window, $cordovaGeolocation, $timeout, $rootScope, $state, $interval, $ionicLoading, $ionicScrollDelegate) {
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+  if ($scope.currentUser.silent==true){
+    $state.go('tab.groups');
+  };
+
+  $scope.show($ionicLoading);
+
   $http.get(apiUrl+'/groups/'+$stateParams.id).success(function(response){
     $scope.group = response;
   }).error(function(response){
@@ -191,74 +220,106 @@ angular.module('starter.controllers', [])
   nemSimpleLogger.doLog = true; //default is true
   nemSimpleLogger.currentLevel = nemSimpleLogger.LEVELS.debug
 
-  var posOptions = { timeout: 5000, enableHighAccuracy: true, maximumAge: 5000 };
-  $cordovaGeolocation.getCurrentPosition(posOptions)
-    .then(function (location) {
-
-    $rootScope.currentLat = location.coords.latitude;
-    $rootScope.currentLong = location.coords.longitude;
-
-    console.log($rootScope.currentLat);
-    console.log($rootScope.currentLong);
-
-
-  })
-
-  $scope.myLocation = {
-    lng : '',
-    lat: ''
-  }
-
   $scope.drawSelfMap = function(position) { 
      //$scope.$apply is needed to trigger the digest cycle when the geolocation arrives and to update all the watchers
     $scope.$apply(function() {
-      $scope.myLocation.lng = position.coords.longitude;
-      $scope.myLocation.lat = position.coords.latitude;
-
-      $scope.map = {
-        center: {
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng
-        },
-        zoom: 14,
-        pan: 2
-      };
-
-      $scope.marker = {
-        id: "you",
-        coords: {
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng
-        },
-        options: {
-         animation: google.maps.Animation.BOUNCE,
-         icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png'            
-        }
-      };
-
       $http.get(apiUrl+'/group/'+$stateParams.id+'/other_users/'+$scope.currentUser.id).success(function(response){
         $scope.userMarkers = response;
+        for (i = 0; i < $scope.userMarkers.length; i++){
+          $scope.userMarkers[i].show = false;
+        }
+        console.log($scope.userMarkers);
+        $scope.map = {
+          center: {
+            latitude: $scope.currentUser.latitude,
+            longitude: $scope.currentUser.longitude
+          },
+          zoom: 18,
+          pan: 2,
+        };
       })
     });
+    $scope.marker = {
+      id: "you",
+      coords: {
+        latitude: $scope.currentUser.latitude,
+        longitude: $scope.currentUser.longitude
+      },
+      phoneNumber: $scope.currentUser.phoneNumber,
+      email: $scope.currentUser.email,
+      show: true,
+      options: {
+       animation: google.maps.Animation.BOUNCE,
+       icon: 'http://labs.google.com/ridefinder/images/mm_20_green.png',
+       zIndex: 0
+      },
+    };
+
+    $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/groups/'+$stateParams.id+'/sent').success(function(response){
+      $scope.sent = response;
+    })
+    $scope.hide($ionicLoading);
   }
 
-  navigator.geolocation.getCurrentPosition($scope.drawSelfMap); 
+  var updateUsers = function(){
+    $interval(function(){
+      $http.get(apiUrl+'/group/'+$stateParams.id+'/other_users/'+$scope.currentUser.id).success(function(response){
+        $scope.userMarkers = response;
+        for (var i=0; i < $scope.userMarkers.length; i++) {
+          if ($scope.userMarkers[i].id === clicked) {
+            $scope.userMarkers[i].show = true;
+          }
+        }
+        console.log($scope.userMarkers);
+      });
+      $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+      $scope.marker.latitude = $scope.currentUser.latitude;
+      $scope.marker.longitude = $scope.currentUser.longitude;
+    }, 5000)
+  };
+
+  var clicked = 0;
+
+  updateUsers();
+
+  navigator.geolocation.getCurrentPosition($scope.drawSelfMap);
+
+  $scope.myClick = function(id){
+    clicked = id;
+    for (var i=0; i < $scope.userMarkers.length; i++) {
+        if ($scope.userMarkers[i].id === id) {
+            obj =  $scope.userMarkers[i];
+            obj.show = true;
+        } else {
+          $scope.userMarkers[i].show = false;
+        }
+    }
+    $scope.map.center = {
+      latitude: obj.latitude,
+      longitude: obj.longitude
+    };
+    $scope.map.zoom = 18;
+    $ionicScrollDelegate.scrollTop(true);
+  } 
 
   $scope.goInvite = function(){
     $location.path('/tab/group/'+$stateParams.id+'/new_invitation');
   }
 
   $scope.leaveGroup = function(){
+    $scope.show($ionicLoading);
     $http.delete(apiUrl+'/groups/'+$stateParams.id+'/to_delete/'+$scope.currentUser.id).success(function(response){
       console.log(response);
+      $scope.hide($ionicLoading);
       $location.path('/tab/groups');
     }).error(function(response){
       console.log(response);
+      $scope.hide($ionicLoading);
     })
   }  
 })
 
-.controller('NewInvitationCtrl', function($scope, $stateParams, $http, $location, $window, $ionicPopup) {
+.controller('NewInvitationCtrl', function($scope, $stateParams, $http, $location, $window, $ionicPopup, $ionicLoading) {
   $scope.invitation = {}
 
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
@@ -270,13 +331,18 @@ angular.module('starter.controllers', [])
   });
 
   $scope.sendInvitation = function(){
+    $scope.show($ionicLoading);
     var data = {
       text: $scope.invitation.text
     }
     $http.post(apiUrl+'/users/'+$scope.currentUser.id+'/groups/'+$stateParams.id+'/invitation/'+$scope.invitation.phoneNumber, data).success(function(response){
-      $window.location.reload(true);
+      $ionicPopup.alert({
+        title: 'Success! Invitation sent!'     
+      });
+      $scope.hide($ionicLoading);
       $location.path('/tab/group/'+$stateParams.id);
     }).error(function(response){
+      $scope.hide($ionicLoading);
       $ionicPopup.alert({
         title: 'Oops! Try again!'      
       });
@@ -322,18 +388,12 @@ angular.module('starter.controllers', [])
   })
 })
 
-.controller('AddGroupCtrl', function($scope, $cordovaFileTransfer, $location, $http, $window){
+.controller('AddGroupCtrl', function($scope, $cordovaFileTransfer, $location, $http, $window, $ionicPopup, $ionicLoading){
   $scope.groupData = {}
-  // $scope.upload = function() {
-  //   var options = {
-  //     fileKey: "avatar",
-  //     fileName: "image.png",
-  //     chunkedMode: false,
-  //     mimeType: "image/png"
-  //   };
-  // };
-
+  $scope.image = {}
+  
   $scope.addGroup = function(){
+    $scope.show($ionicLoading);
     var data = {
       name: $scope.groupData.name
     } 
@@ -345,13 +405,44 @@ angular.module('starter.controllers', [])
       }
       $http.post(apiUrl+'/groups/'+response.id+'/group_users', userData).success(function(resp){
         console.log(resp);
+        $scope.hide($ionicLoading);
         $window.location.reload(true);
         $location.path('/tab/groups');
       }).error(function(resp){
         console.log(resp);
+        $scope.hide($ionicLoading);
       })
     }).error(function(response){
       console.log(response);
+      $scope.hide($ionicLoading);
     })
-  }
+
+    // var options = {
+    //   fileKey: "image",
+    //   fileName: "image.png",
+    //   chunkedMode: false,
+    //   mimeType: "image/png",
+    //   params: { name: $scope.groupData.name}
+    // };
+
+    // $cordovaFileTransfer.upload(apiUrl+'/groups', $scope.image.file, options)
+    //   .then(function(result){
+    //     $ionicPopup.alert({
+    //     title: 'Congrats! A new group '+$scope.groupData.name+' has been added.'      
+    //     });
+    //     $http.post(apiUrl+'/groups/'+response.id+'/group_users', userData).success(function(resp){
+    //       console.log(resp);
+    //       $window.location.reload(true);
+    //       $location.path('/tab/groups');
+    //     }).error(function(resp){
+    //       $ionicPopup.alert({
+    //       title: 'Oops! There was an error adding you to the group!'      
+    //       });
+    //     })
+    //   }, function(response){
+    //     $ionicPopup.alert({
+    //     title: 'Oops! There was an error inputting the group!'      
+    //     });
+    //   }, function(progress){});
+  };  
 });

@@ -1,12 +1,24 @@
-<ion-view view-title="Settings">
+<ion-view view-title="Settings" cache-view="false">
   <ion-content>
     <ion-list>
-    	<ion-toggle  ng-model="settings.allowInvitations">
-        Allow Invitations
+    	<ion-toggle ng-model="settings.allowInvitations">
+        <h2>Allow Invitations</h2>
     	</ion-toggle>
     	<ion-toggle  ng-model="settings.goSilent">
-        Go Silent
+        <h2>Go Silent</h2>
     	</ion-toggle>
     </ion-list>
+    <div class="list card" ng-show="settings.allowInvitations == false">
+      <div class="item item-divider">You are not receiving any invitations!</div>
+      <div class="item item-body">
+        Allow invitations to join new groups!
+      </div>
+    </div>
+    <div class="list card" ng-show="settings.goSilent == true">
+      <div class="item item-divider">You are now silent!</div>
+      <div class="item item-body">
+        Turn off silent if you want to see your groups and for others to see you!
+      </div>
+    </div>
   </ion-content>
 </ion-view>

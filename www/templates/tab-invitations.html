@@ -1,6 +1,5 @@
 <ion-view view-title="Invitations" cache-view="false">
-  <ion-content class="padding">
-    <h1>Received Invitations</h1>
+  <ion-content class="padding" id="invitations">
     <div class="list card" ng-repeat="invitation in invitationsReceived track by $index">
       <div class="item item-divider">Sent By {{ invitation.sent_by }} To Join {{ invitation.group_to_join }}</div>
       <div class="item item-body">
@@ -17,16 +16,12 @@
           </div>
         </div>
       </div>
-    </div>
-    
-    <h1>Sent Invitations</h1>
-    <div class="list card" ng-repeat="invitation in invitationsSent">
-      <div class="item item-divider">Sent To {{ invitation.sent_to }} To Join {{ invitation.group_to_join }}</div>
-      <div class="item item-body">
-        <div>
-          {{ invitation.text }}
-        </div>
       </div>
+    </div>
+    <div class="list card" ng-show="invitationsReceived.length == 0">
+      <div class="item item-divider">You have no invitations!</div>
+      <div class="item item-body">
+        Please check again later.
     </div>
   </ion-content>
 </ion-view>

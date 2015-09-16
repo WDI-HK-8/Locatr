@@ -33,8 +33,10 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
 
   // setup an abstract state for the tabs directive
     .state('tab', {
+    cached: false,
     url: '/tab',
     abstract: true,
+    cached: false,
     templateUrl: 'templates/tabs.html',
     controller: 'TabCtrl'
   })
@@ -53,6 +55,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
   })
 
   .state('tab.groups', {
+      cached: false,
       url: '/groups',
       views: {
         'tab-groups': {
@@ -73,6 +76,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     })
 
   .state('tab.settings', {
+    cached: false,
     url: '/settings',
     views: {
       'tab-settings': {
@@ -104,9 +108,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     })
 
   .state('login', {
+    cached: false,
     url: '/login',
     templateUrl: 'templates/login.html',
     controller: 'LoginCtrl'
+  })
+
+  .state('signup',{
+    cached: false,
+    url: '/signup',
+    templateUrl: 'templates/signup.html',
+    controller: 'SignupCtrl'
   });
 
   // if none of the above states are matched, use this as the fallback
