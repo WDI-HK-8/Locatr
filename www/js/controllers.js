@@ -14,7 +14,6 @@ angular.module('starter.controllers', [])
   };
 
   $scope.data = {};
-  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
   var getInvitation = function(){
     $interval(function(){
       $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
@@ -23,7 +22,7 @@ angular.module('starter.controllers', [])
         console.log(response);
       })
     }, 5000)
-  }
+  };
   
   getInvitation();
 
@@ -32,7 +31,7 @@ angular.module('starter.controllers', [])
     $window.localStorage.removeItem('current-user');
     $location.path('/login');
     cordova.plugins.backgroundMode.disable();
-  }
+  };
 
   document.addEventListener('deviceready', function () {
     if(window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
@@ -42,6 +41,7 @@ angular.module('starter.controllers', [])
     cordova.plugins.backgroundMode.enable();
     var updatePosition = function(){
       $interval(function(){
+        $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
         var posOptions = { timeout: 5000, enableHighAccuracy: true, maximumAge: 5000 };
         $cordovaGeolocation.getCurrentPosition(posOptions)
           .then(function (location) {
@@ -139,6 +139,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('GroupsCtrl', function($scope, $location, $http, $window, $ionicLoading) {
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
 
   $scope.show($ionicLoading);
 
@@ -209,7 +210,7 @@ angular.module('starter.controllers', [])
     $state.go('tab.groups');
   };
 
-  $scope.show($ionicLoading);
+  // $scope.show($ionicLoading);
 
   $http.get(apiUrl+'/groups/'+$stateParams.id).success(function(response){
     $scope.group = response;
@@ -258,7 +259,7 @@ angular.module('starter.controllers', [])
     $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/groups/'+$stateParams.id+'/sent').success(function(response){
       $scope.sent = response;
     })
-    $scope.hide($ionicLoading);
+    // $scope.hide($ionicLoading);
   }
 
   var updateUsers = function(){
