@@ -197,7 +197,7 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('GroupCtrl', function($scope, $stateParams, $http, $location, nemSimpleLogger, uiGmapGoogleMapApi, $window, $cordovaGeolocation, $timeout, $rootScope, $state, $interval, $ionicLoading) {
+.controller('GroupCtrl', function($scope, $stateParams, $http, $location, nemSimpleLogger, uiGmapGoogleMapApi, $window, $cordovaGeolocation, $timeout, $rootScope, $state, $interval, $ionicLoading, $ionicScrollDelegate) {
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
   if ($scope.currentUser.silent==true){
     $state.go('tab.groups');
@@ -305,6 +305,7 @@ angular.module('starter.controllers', [])
       longitude: obj.longitude
     };
     $scope.map.zoom = 20;
+    $ionicScrollDelegate.scrollTop(true);
   } 
 
   $scope.goInvite = function(){
