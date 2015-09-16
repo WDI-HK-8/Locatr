@@ -1,4 +1,4 @@
-<ion-view view-title="{{currentUser.name}}'s Groups" cache-view="false">
+<ion-view view-title="{{currentUser.name}}'s Groups" cache-view="false" overflow-scroll="true">
   <ion-content>
     <ion-list>
       <ion-item class="item-remove-animate group-list item-avatar item-icon-right" ng-repeat="group in groups" type="item-text-wrap" href="#/tab/group/{{group.id}}">

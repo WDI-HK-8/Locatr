@@ -54,6 +54,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
   })
 
   .state('tab.groups', {
+      cached: false,
       url: '/groups',
       views: {
         'tab-groups': {

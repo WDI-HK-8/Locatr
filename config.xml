@@ -10,6 +10,7 @@
   <content src="index.html"/>
   <access origin="*"/>
   <access origin="content:///*"/>
+  <access origin="tel:*" launch-external="yes"/>
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
   <preference name="DisallowOverscroll" value="true"/>
@@ -20,7 +21,6 @@
   <feature name="StatusBar">
     <param name="ios-package" value="CDVStatusBar" onload="true"/>
   </feature>
-  <access origin="tel:*" launch-external="yes"/>
   <platform name="android">
     <icon src="resources/android/icon/drawable-ldpi-icon.png" density="ldpi"/>
     <icon src="resources/android/icon/drawable-mdpi-icon.png" density="mdpi"/>
