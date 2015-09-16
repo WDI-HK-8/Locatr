@@ -1,4 +1,4 @@
-var apiUrl = 'https://locatrbackend.herokuapp.com'
+var apiUrl = 'https://locatrbackend.herokuapp.com';
 
 angular.module('starter.controllers', [])
 
@@ -55,7 +55,7 @@ angular.module('starter.controllers', [])
             console.log(response);
           })
         });
-      }, 5000)
+      }, 30000)
     }
 
     updatePosition();
@@ -199,7 +199,7 @@ angular.module('starter.controllers', [])
     $auth.submitRegistration($scope.signupData).then(function(response){
       $window.localStorage.setItem('current-user',JSON.stringify(response.data.data));
       $window.location.reload(true);
-      $location.path('/tab/groups');
+      $location.path('/login');
     }).catch(function(response){
       console.log(response);
       $ionicPopup.alert({
@@ -245,40 +245,37 @@ angular.module('starter.controllers', [])
       $scope.myLocation.lng = position.coords.longitude;
       $scope.myLocation.lat = position.coords.latitude;
 
-      $scope.map = {
-        center: {
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng
-        },
-        zoom: 20,
-        pan: 2,
-      };
-
-      $scope.marker = {
-        id: "you",
-        coords: {
-          latitude: $scope.myLocation.lat,
-          longitude: $scope.myLocation.lng
-        },
-        options: {
-         animation: google.maps.Animation.BOUNCE,
-         icon: 'http://labs.google.com/ridefinder/images/mm_20_black.png',
-         zIndex: 0
-        },
-      };
-
       $http.get(apiUrl+'/group/'+$stateParams.id+'/other_users/'+$scope.currentUser.id).success(function(response){
         $scope.userMarkers = response;
         for (i = 0; i < $scope.userMarkers.length; i++){
-          $scope.userMarkers[i].show = true;
+          $scope.userMarkers[i].show = false;
         }
         console.log($scope.userMarkers);
+        $scope.map = {
+          center: {
+            latitude: $scope.myLocation.lat,
+            longitude: $scope.myLocation.lng
+          },
+          zoom: 20,
+          pan: 2,
+        };
       })
-
-      $scope.windowOptions = {
-        visible: true
-      };
     });
+    $scope.marker = {
+      id: "you",
+      coords: {
+        latitude: $scope.myLocation.lat,
+        longitude: $scope.myLocation.lng
+      },
+      phoneNumber: $scope.currentUser.phoneNumber,
+      email: $scope.currentUser.email,
+      show: true,
+      options: {
+       animation: google.maps.Animation.BOUNCE,
+       icon: 'http://labs.google.com/ridefinder/images/mm_20_green.png',
+       zIndex: 0
+      },
+    };
     $scope.hide($ionicLoading);
   }
 
@@ -286,26 +283,37 @@ angular.module('starter.controllers', [])
     $interval(function(){
       $http.get(apiUrl+'/group/'+$stateParams.id+'/other_users/'+$scope.currentUser.id).success(function(response){
         $scope.userMarkers = response;
-        for (i = 0; i < $scope.userMarkers.length; i++){
-          $scope.userMarkers[i].show = true;
+        for (var i=0; i < $scope.userMarkers.length; i++) {
+          if ($scope.userMarkers[i].id === clicked) {
+            $scope.userMarkers[i].show = true;
+          }
         }
+        console.log($scope.userMarkers);
       })
-    }, 30000)
+    }, 60000)
   }
+
+  var clicked = 0;
 
   updateUsers();
 
   navigator.geolocation.getCurrentPosition($scope.drawSelfMap);
 
-  angular.forEach($scope.userMarkers,function(marker){
-        marker.onClicked = function(){
-          alert(marker.id);
-          onMarkerClicked(marker.id);
-        };
- });
-
   $scope.myClick = function(id){
-    $scope.map.event.trigger($scope.userMarkers[id], 'click');
+    clicked = id;
+    for (var i=0; i < $scope.userMarkers.length; i++) {
+        if ($scope.userMarkers[i].id === id) {
+            obj =  $scope.userMarkers[i];
+            obj.show = true;
+        } else {
+          $scope.userMarkers[i].show = false;
+        }
+    }
+    $scope.map.center = {
+      latitude: obj.latitude,
+      longitude: obj.longitude
+    };
+    $scope.map.zoom = 20;
   } 
 
   $scope.goInvite = function(){
@@ -450,7 +458,5 @@ angular.module('starter.controllers', [])
     //     title: 'Oops! There was an error inputting the group!'      
     //     });
     //   }, function(progress){});
-  };
-
-    
+  };  
 });

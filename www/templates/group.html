@@ -1,13 +1,14 @@
 <ion-view view-title="{{ group.name }}">
   <ion-content data-tap-disabled="true" overflow-scroll="true">
   	<div id="map">
-	    <ui-gmap-google-map center='map.center' zoom='map.zoom' events="map.markersEvents">
+	    <ui-gmap-google-map center='map.center' zoom='map.zoom' events="map.markersEvents" refresh='true'>
 	      <ui-gmap-markers
 		     	models  = "userMarkers"
 		     	coords  = "'self'"
 		     	icon    = "'icon'"
 		     	click  	=  "clickPin"
-		     	fit			=		"true">
+		     	fit			=		"true"
+		     	dorebuildall="true">
 		     	<ui-gmap-windows>
 		       	<div ng-non-bindable>
 		         	<h5>{{name}}</h5>
@@ -15,7 +16,7 @@
 		       	</div>
 		     	</ui-gmap-windows>
 		   	</ui-gmap-markers>
-		   	<ui-gmap-marker coords="marker.coords" options="marker.options" idkey="marker.id" closeClick="hideMarkerPopup()" onClicked="showMarkerPopup()">
+		   	<ui-gmap-marker coords="marker.coords" options="marker.options" idkey="marker.id">
 	      </ui-gmap-marker>        
 	    </ui-gmap-google-map>
     </div>
