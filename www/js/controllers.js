@@ -75,13 +75,8 @@ angular.module('starter.controllers', [])
   var getReceived = function(){
     $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
       $scope.invitationsReceived = response;
-      $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
-        $scope.data = response;
-        $scope.hide($ionicLoading);
-      }).error(function(response){
-        console.log(response);
-        $scope.hide($ionicLoading);
-      })
+      $scope.data = response;
+      $scope.hide($ionicLoading);
     }).error(function(response){
       console.log(response);
       $scope.hide($ionicLoading);
@@ -89,14 +84,6 @@ angular.module('starter.controllers', [])
   }
 
   getReceived();
-
-  $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/sent').success(function(response){
-    $scope.invitationsSent = response;
-    $scope.hide($ionicLoading);
-  }).error(function(response){
-    console.log(response);
-    $scope.hide($ionicLoading);
-  })
 
   $scope.acceptInvite = function(index){
     $scope.show($ionicLoading);

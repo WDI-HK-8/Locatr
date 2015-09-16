@@ -75,6 +75,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
     })
 
   .state('tab.settings', {
+    cached: false,
     url: '/settings',
     views: {
       'tab-settings': {
