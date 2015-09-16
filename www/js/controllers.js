@@ -15,11 +15,17 @@ angular.module('starter.controllers', [])
 
   $scope.data = {};
   $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
-  $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
-    $scope.data = response;
-  }).error(function(response){
-    console.log(response);
-  })
+  var getInvitation = function(){
+    $interval(function(){
+      $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/received').success(function(response){
+        $scope.data = response;
+      }).error(function(response){
+        console.log(response);
+      })
+    }, 3000)
+  }
+  
+  getInvitation();
 
   console.log($scope.currentUser);
   $scope.logout = function(){
@@ -101,11 +107,13 @@ angular.module('starter.controllers', [])
       $http.post(apiUrl+'/groups/'+$scope.invitationToAccept.group_id+'/group_users', groupUserData).success(function(response){
         console.log(response);
         getReceived();
+        $scope.hide($ionicLoading);
       }).error(function(response){
         console.log(response);
         $scope.hide($ionicLoading);
       })
       console.log(response);
+      $scope.hide($ionicLoading);
     }).error(function(response){
       console.log(response);
       $scope.hide($ionicLoading);
