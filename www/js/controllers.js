@@ -275,7 +275,7 @@ angular.module('starter.controllers', [])
       $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
       $scope.marker.latitude = $scope.currentUser.latitude;
       $scope.marker.longitude = $scope.currentUser.longitude;
-    }, 60000)
+    }, 5000)
   };
 
   var clicked = 0;
