@@ -276,6 +276,10 @@ angular.module('starter.controllers', [])
        zIndex: 0
       },
     };
+
+    $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/groups/'+$stateParams.id+'/sent').success(function(response){
+      $scope.sent = response;
+    })
     $scope.hide($ionicLoading);
   }
 
@@ -289,7 +293,11 @@ angular.module('starter.controllers', [])
           }
         }
         console.log($scope.userMarkers);
-      })
+      });
+
+      $http.get(apiUrl+'/users/'+$scope.currentUser.id+'/groups/'+$stateParams.id+'/sent').success(function(response){
+        $scope.sent = response;
+      });
     }, 60000)
   }
 

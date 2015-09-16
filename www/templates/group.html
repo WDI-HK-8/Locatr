@@ -28,6 +28,12 @@
 	        <a href="tel:+{{user.phone_number}}"><i class="icon ion-ios-telephone"></i></a>
 	      </ion-item>
 	    </ion-list>
+	    <ion-item class="item sent-invitation item-text-wrap item-remove-animate item-avatar item-icon-right" ng-repeat="user in sent">
+	      	<img ng-src="{{user.image}}" onerror="this.src='img/icon.jpg'">
+	        <p>{{user.sent_to}}</p>
+	        <p>Waiting for user to accept invitation.</p>
+	      </ion-item>
+	    </ion-list>
 			<div id="group-buttons">
 			   <button class="button button-positive invite-button button-small" ng-click="goInvite()">
 					  Invite User

@@ -123,6 +123,10 @@ input:-ms-input-placeholder {
    color: white;  
 }
 
-/*ion-item.item:hover a {
-  background-color: slategray;
-}*/
+.sent-invitation {
+  background-color: lightgray;
+}
+
+.sent-invitation p {
+	color: white;
+}
