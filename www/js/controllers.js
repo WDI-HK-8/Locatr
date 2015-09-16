@@ -2,7 +2,7 @@ var apiUrl = 'https://locatrbackend.herokuapp.com';
 
 angular.module('starter.controllers', [])
 
-.controller('TabCtrl', function($scope, $location, $window, $interval, $cordovaGeolocation, $http, $timeout, $rootScope, $ionicLoading){
+.controller('TabCtrl', function($scope, $location, $window, $interval, $cordovaGeolocation, $http, $timeout, $ionicLoading){
   $scope.show = function() {
     $ionicLoading.show({
       template: '<p>Loading...</p><ion-spinner></ion-spinner>'
@@ -22,7 +22,7 @@ angular.module('starter.controllers', [])
       }).error(function(response){
         console.log(response);
       })
-    }, 3000)
+    }, 5000)
   }
   
   getInvitation();
@@ -47,11 +47,11 @@ angular.module('starter.controllers', [])
           .then(function (location) {
           $scope.currentUser.latitude = location.coords.latitude;
           $scope.currentUser.longitude = location.coords.longitude;
-
+          $window.localStorage.setItem('current-user',JSON.stringify($scope.currentUser));
           var data = {
             user: {
-              'latitude': $rootScope.currentLat,
-              'longitude': $rootScope.currentLong
+              'latitude': $scope.currentUser.latitude,
+              'longitude': $scope.currentUser.longitude
             }
           };
 
@@ -61,7 +61,7 @@ angular.module('starter.controllers', [])
             console.log(response);
           })
         });
-      }, 30000)
+      }, 3000)
     }
 
     updatePosition();
@@ -69,8 +69,6 @@ angular.module('starter.controllers', [])
     cordova.plugins.backgroundMode.onactivate = function(){
       updatePosition();
     }
-
-
   });
 })
 
@@ -236,7 +234,7 @@ angular.module('starter.controllers', [])
             latitude: $scope.currentUser.latitude,
             longitude: $scope.currentUser.longitude
           },
-          zoom: 20,
+          zoom: 18,
           pan: 2,
         };
       })
@@ -274,23 +272,10 @@ angular.module('starter.controllers', [])
         }
         console.log($scope.userMarkers);
       });
+      $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+      $scope.marker.latitude = $scope.currentUser.latitude;
+      $scope.marker.longitude = $scope.currentUser.longitude;
     }, 60000)
-
-    $scope.marker = {
-      id: "you",
-      coords: {
-        latitude: $scope.currentUser.latitude,
-        longitude: $scope.currentUser.longitude
-      },
-      phoneNumber: $scope.currentUser.phoneNumber,
-      email: $scope.currentUser.email,
-      show: true,
-      options: {
-       animation: google.maps.Animation.BOUNCE,
-       icon: 'http://labs.google.com/ridefinder/images/mm_20_green.png',
-       zIndex: 0
-      },
-    };
   };
 
   var clicked = 0;
@@ -313,7 +298,7 @@ angular.module('starter.controllers', [])
       latitude: obj.latitude,
       longitude: obj.longitude
     };
-    $scope.map.zoom = 20;
+    $scope.map.zoom = 18;
     $ionicScrollDelegate.scrollTop(true);
   } 
 
