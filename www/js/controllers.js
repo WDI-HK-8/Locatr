@@ -9,6 +9,8 @@ angular.module('starter.controllers', [])
     });
   };
 
+  $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
+
   $scope.hide = function(){
     $ionicLoading.hide();
   };
