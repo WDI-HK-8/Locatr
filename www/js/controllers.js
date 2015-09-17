@@ -61,7 +61,7 @@ angular.module('starter.controllers', [])
             console.log(response);
           })
         });
-      }, 3000)
+      }, 5000)
     }
 
     updatePosition();
@@ -235,7 +235,7 @@ angular.module('starter.controllers', [])
             latitude: $scope.currentUser.latitude,
             longitude: $scope.currentUser.longitude
           },
-          zoom: 18,
+          zoom: 16,
           pan: 2,
         };
       })
@@ -276,7 +276,7 @@ angular.module('starter.controllers', [])
       $scope.currentUser = JSON.parse($window.localStorage.getItem('current-user'));
       $scope.marker.latitude = $scope.currentUser.latitude;
       $scope.marker.longitude = $scope.currentUser.longitude;
-    }, 5000)
+    }, 30000)
   };
 
   var clicked = 0;
@@ -299,7 +299,7 @@ angular.module('starter.controllers', [])
       latitude: obj.latitude,
       longitude: obj.longitude
     };
-    $scope.map.zoom = 18;
+    $scope.map.zoom = 16;
     $ionicScrollDelegate.scrollTop(true);
   } 
 
